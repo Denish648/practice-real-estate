@@ -1,33 +1,53 @@
-import { createClient } from "@/lib/supabase/server";
+"use client";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
 
-export default async function BuyerDashboard() {
-    const supabase = await createClient();
-    const {data: { user }} = await supabase.auth.getUser();  
-    const {data: deals} = await supabase.from("deals").select("*");
+export default function BuyerDashboard() {
+  const [deals, setDeals] = useState<any[]>([]);
 
-    return (
-        <>
-        <div className="flex flex-col gap-10">
-            <h1 className="text-black text-4xl">dashboard - buyer</h1>
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("deals")
+      .select("*")
+      .then(({ data }) => {
+        if (data) setDeals(data);
+      });
+  }, []);
 
-            {/* welcome title */}
-            <div>
-                <h3>welcome, {user?.user_metadata.name}</h3>
-            </div>
+  const totalPrice =
+    deals?.reduce((total, deal) => {
+      return total + Number(deal.price);
+    }, 0) ?? 0;
 
-            {/* my deals */}
-            <h1 className="text-3xl">Deals</h1>
-            <ol>
-                {deals?.map((deal,i) => {
-                const {title,city,price} = deal;
-                    return <li key={`key-${i}`}>
-                                <p>title : {title}</p>
-                                <p>city : {city}</p>
-                                <p>price : {price}</p>
-                            </li>
-                })}
-            </ol>
+  return (
+    <>
+      <div className="flex flex-col gap-10 p-5">
+        <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mx-10">
+          <Card>
+            <CardHeader>
+              <CardDescription>Total Deals (Only Public Deals)</CardDescription>
+              <CardTitle className="text-2xl font-semibold">
+                {deals?.length ?? 0}
+              </CardTitle>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardDescription>Total Price</CardDescription>
+              <CardTitle className="text-2xl">{totalPrice}</CardTitle>
+            </CardHeader>
+          </Card>
         </div>
-        </>
-    );
+      </div>
+    </>
+  );
 }

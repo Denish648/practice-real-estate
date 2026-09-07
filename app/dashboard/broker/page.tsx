@@ -1,99 +1,74 @@
 "use client";
 
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
 
 export default function BrokerDashboard() {
-    const [deals, setDeals] = useState<any[]>([]);
-    const [user, setUser] = useState<User | null>(null);
-    const [filter, setFilter] = useState("all");
+  const [deals, setDeals] = useState<any[]>([]);
 
-    useEffect(() => {
-        const supabase = createClient();
+  const allDeals = deals?.length ?? 0;
 
-        supabase.auth.getUser().then(({ data }) => {
-            setUser(data.user);
-        });
+  const publicDeals = deals?.filter((deal) => !deal.is_private).length ?? 0;
 
-        supabase.from("deals").select("*").then(({ data }) => {
-            if (data) setDeals(data);
-        });
-    }, []);
+  const privateDeals = deals?.filter((deal) => deal.is_private).length ?? 0;
 
-    const filteredDeals = deals.filter((deal) => {
-        if (filter === "public") return deal.is_private === false;
-        if (filter === "private") return deal.is_private === true;
-        return true;
-    });
+  const totalPrice =
+    deals?.reduce((total, deal) => {
+      return total + Number(deal.price);
+    }, 0) ?? 0;
 
-    return (
-        <div className="flex flex-col gap-10 p-5">
-            <h1 className="text-black text-4xl">dashboard - broker</h1>
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("deals")
+      .select("*")
+      .then(({ data }) => {
+        if (data) setDeals(data);
+      });
+  }, []);
 
-            {/* welcome title */}
-            <div>
-                <h3>welcome, {user?.user_metadata?.name}</h3>
-            </div>
+  return (
+    <>
+      <div className="flex flex-col gap-10 p-5">
+        <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mx-10">
+          <Card>
+            <CardHeader>
+              <CardDescription>Total Deals</CardDescription>
+              <CardTitle className="text-2xl font-semibold">
+                {allDeals}
+              </CardTitle>
+            </CardHeader>
+          </Card>
 
-            {/* create deal */}
-            <Link href="/dashboard/broker/create-deal" className="border px-5 w-max">
-                create deal
-            </Link>
+          <Card>
+            <CardHeader>
+              <CardDescription>Public Deals</CardDescription>
+              <CardTitle className="text-2xl">{publicDeals}</CardTitle>
+            </CardHeader>
+          </Card>
 
-            <br/> <br/>
+          <Card>
+            <CardHeader>
+              <CardDescription>Private Deals</CardDescription>
+              <CardTitle className="text-2xl">{privateDeals}</CardTitle>
+            </CardHeader>
+          </Card>
 
-            {/* Radio filter buttons */}
-            <div className="flex gap-5">
-                <label className="flex gap-2">
-                    <input
-                        type="radio"
-                        name="filter"
-                        value="all"
-                        checked={filter === "all"}
-                        onChange={(e) => setFilter(e.target.value)}
-                    />
-                    all
-                </label>
-
-                <label className="flex gap-2">
-                    <input
-                        type="radio"
-                        name="filter"
-                        value="public"
-                        checked={filter === "public"}
-                        onChange={(e) => setFilter(e.target.value)}
-                    />
-                    public
-                </label>
-
-                <label className="flex gap-2">
-                    <input
-                        type="radio"
-                        name="filter"
-                        value="private"
-                        checked={filter === "private"}
-                        onChange={(e) => setFilter(e.target.value)}
-                    />
-                    private
-                </label>
-            </div>
-
-            {/* my deals */}
-            <ol className="flex flex-col gap-3">
-                {filteredDeals.map((deal, i) => {
-                    const { title, city, price, is_private } = deal;
-                    return (
-                        <li key={`key-${i}`} className="border p-3">
-                            <p>title : {title}</p>
-                            <p>city : {city}</p>
-                            <p>price : {price}</p>
-                            <p>status : {is_private ? "private" : "public"}</p>
-                        </li>
-                    );
-                })}
-            </ol>
+          <Card>
+            <CardHeader>
+              <CardDescription>Total Value</CardDescription>
+              <CardTitle className="text-2xl">{totalPrice}</CardTitle>
+            </CardHeader>
+          </Card>
         </div>
-    );
+      </div>
+    </>
+  );
 }
