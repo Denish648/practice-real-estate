@@ -8,8 +8,11 @@ import {
 } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 export default function BrokerDashboard() {
+  const [loading, setLoading] = useState(true);
+
   const [deals, setDeals] = useState<any[]>([]);
 
   const allDeals = deals?.length ?? 0;
@@ -24,13 +27,24 @@ export default function BrokerDashboard() {
     }, 0) ?? 0;
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from("deals")
-      .select("*")
-      .then(({ data }) => {
-        if (data) setDeals(data);
-      });
+    async function getDeals() {
+      const supabase = createClient();
+      setLoading(true);
+
+      try {
+        const { data, error } = await supabase.from("deals").select("*");
+
+        if (error) {
+          console.log(error);
+          toast.error("something went wrong")
+          return;
+        }
+        setDeals(data ?? [])
+      } finally{
+        setLoading(false);
+      }
+    }
+    getDeals();
   }, []);
 
   return (
@@ -42,7 +56,7 @@ export default function BrokerDashboard() {
             <CardHeader>
               <CardDescription>Total Deals</CardDescription>
               <CardTitle className="text-2xl font-semibold">
-                {allDeals}
+                {loading ? "---" : allDeals}
               </CardTitle>
             </CardHeader>
           </Card>
@@ -50,21 +64,27 @@ export default function BrokerDashboard() {
           <Card>
             <CardHeader>
               <CardDescription>Public Deals</CardDescription>
-              <CardTitle className="text-2xl">{publicDeals}</CardTitle>
+              <CardTitle className="text-2xl">
+                {loading ? "---" : publicDeals}
+              </CardTitle>
             </CardHeader>
           </Card>
 
           <Card>
             <CardHeader>
               <CardDescription>Private Deals</CardDescription>
-              <CardTitle className="text-2xl">{privateDeals}</CardTitle>
+              <CardTitle className="text-2xl">
+                {loading ? "---" : privateDeals}
+              </CardTitle>
             </CardHeader>
           </Card>
 
           <Card>
             <CardHeader>
               <CardDescription>Total Value</CardDescription>
-              <CardTitle className="text-2xl">{totalPrice}</CardTitle>
+              <CardTitle className="text-2xl">
+                {loading ? "---" : totalPrice}
+              </CardTitle>
             </CardHeader>
           </Card>
         </div>

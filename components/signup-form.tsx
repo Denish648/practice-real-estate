@@ -27,6 +27,7 @@ export function SignupForm({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -46,6 +47,7 @@ export function SignupForm({
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    setLoading(true);
     const { userData, error } = await SignupAPI(
       data.email,
       data.password,
@@ -57,15 +59,18 @@ export function SignupForm({
 
     if (error) {
       console.log(error);
+      setLoading(false);
       return;
     }
 
     const role = userData?.user?.user_metadata?.role;
 
     if (role) {
+      setLoading(false);
       router.push(`/dashboard/${role}`);
       router.refresh();
     } else {
+      setLoading(false);
       router.push("/");
       router.refresh();
     }
@@ -179,7 +184,9 @@ export function SignupForm({
                 />
               </Field>
               <Field>
-                <Button type="submit">Create Account</Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? "creating acoount..." : "Create Account"}
+                </Button>
                 <FieldDescription className="text-center">
                   Already have an account? <Link href="/login">login</Link>
                 </FieldDescription>

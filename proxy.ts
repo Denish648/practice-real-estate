@@ -43,11 +43,21 @@ export async function proxy(request: NextRequest) {
 
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
-  if (!user && !isAuthRoute) {
+ if (!user) {
+  if (!isAuthRoute) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+  return response;
+}
+
+  const {data:profile,error} = await supabase.from("profiles").select("role").eq("id",user.id).single();
+
+  if (error || !profile) {
+    console.error("Failed to fetch user profile:", error);
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  const role = user?.user_metadata?.role;
+  const role = profile.role;
 
   if (pathname === "/dashboard") {
     if (role === "buyer") {

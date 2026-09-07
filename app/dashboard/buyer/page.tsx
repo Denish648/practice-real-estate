@@ -9,6 +9,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 
 export default function BuyerDashboard() {
+  const [loading, setLoading] = useState(true);
+
   const [deals, setDeals] = useState<any[]>([]);
 
   useEffect(() => {

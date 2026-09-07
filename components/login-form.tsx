@@ -25,6 +25,7 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -41,11 +42,12 @@ export function LoginForm({
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-
+    setLoading(true);
     const { userData, error } = await LoginAPI(data.email, data.password);
 
     if (error) {
       console.log(error);
+      setLoading(false);
       return;
     }
 
@@ -54,9 +56,11 @@ export function LoginForm({
     if (role) {
       router.push(`/dashboard/${role}`);
       router.refresh();
+      setLoading(false);
     } else {
       router.push("/");
       router.refresh();
+      setLoading(false);
     }
   };
   return (
@@ -99,7 +103,9 @@ export function LoginForm({
                 />
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? "logging..." : "Login"}
+                </Button>
                 <FieldDescription className="text-center">
                   Don&apos;t have an account?{" "}
                   <Link href="/signup">Sign up</Link>
