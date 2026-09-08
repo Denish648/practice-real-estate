@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { createClient } from "@/lib/supabase/client";
+import { formatPrice } from "@/lib/utils/format";
 import { useEffect, useState } from "react";
 
 export default function BrowseDeals() {
@@ -49,9 +50,7 @@ export default function BrowseDeals() {
 
                     <TableCell>{city}</TableCell>
 
-                    <TableCell>
-                      ₹{Number(price).toLocaleString("en-IN")}
-                    </TableCell>
+                    <TableCell>{formatPrice(price)}</TableCell>
 
                     <TableCell>
                       <Badge variant={is_private ? "secondary" : "default"}>

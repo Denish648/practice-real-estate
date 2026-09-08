@@ -1,5 +1,3 @@
-"use client";
-
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -11,14 +9,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { createClient } from "@/lib/supabase/client";
+import { getUser } from "@/lib/data/user";
 import {
   LayoutDashboard,
   Building2,
   PlusCircle,
   CommandIcon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 
 const brokerData = [
   {
@@ -51,15 +48,12 @@ const buyerData = [
   },
 ];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [user, setUser] = useState<any>();
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data?.user?.user_metadata);
-    });
-  }, []);
+export async function AppSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
+  const { user, error } = await getUser();
+  if (error) throw error;
+  if (!user) return <div>user not found</div>;
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -79,13 +73,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={user?.role === "broker" ? brokerData : buyerData} />
+        <NavMain
+          items={user.user_metadata.role === "broker" ? brokerData : buyerData}
+        />
       </SidebarContent>
       <SidebarFooter>
         <NavUser
           user={{
-            name: user?.name,
-            email: user?.email,
+            name: user.user_metadata.name,
+            email: user.email ?? "",
           }}
         />
       </SidebarFooter>

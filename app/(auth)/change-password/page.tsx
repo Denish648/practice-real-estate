@@ -10,28 +10,40 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { changePasswordSchema } from "@/lib/validations/auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export default function changeassword() {
+export default function ChangePassword() {
   const [loading, setLoading] = useState(false);
+  const [fieldError, setFieldError] = useState("");
   const router = useRouter();
   const [password, setPassword] = useState("");
 
-  function onChangeText(e: any) {
+  function onChangeText(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     setPassword(value);
   }
-  async function handleSubmit(e: any) {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(false);
 
-    const { error } = await ChangePassowordAPI(password);
+    const result = changePasswordSchema.safeParse({ password });
+
+    if (!result.success) {
+      setFieldError(result.error.issues[0].message);
+      setLoading(false);
+      return;
+    }
+    const { password: newPassword } = result.data;
+
+    const { error } = await ChangePassowordAPI(newPassword);
 
     if (error) {
+      toast.error(error.message);
       setLoading(false);
-      toast.error("Something went wrong");
+      setFieldError("");
       return;
     }
 
@@ -63,7 +75,7 @@ export default function changeassword() {
                     placeholder="********"
                     name="password"
                     onChange={(e) => onChangeText(e)}
-                    required
+                    error={fieldError}
                   />
                 </Field>
                 <Button

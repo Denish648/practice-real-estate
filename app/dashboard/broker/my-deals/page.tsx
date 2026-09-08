@@ -18,20 +18,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
+import { formatPrice } from "@/lib/utils/format";
 
 export default function MyDeals() {
   const [deals, setDeals] = useState<any[]>([]);
   const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = createClient();
+    async function getDeals() {
+      const supabase = createClient();
+      setLoading(true);
+      const {
+        data: { user: user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
-    supabase
-      .from("deals")
-      .select("*")
-      .then(({ data }) => {
-        if (data) setDeals(data);
-      });
+      if (userError || !user) {
+        toast.error("unauthorized");
+        return;
+      }
+      const { data: dealsData, error: dealsError } = await supabase
+        .from("deals")
+        .select("*")
+        .eq("broker_id", user.id);
+
+      setLoading(false);
+
+      if (dealsError) {
+        toast.error("error fetching deals");
+        return;
+      }
+
+      setDeals(dealsData ?? []);
+    }
+    getDeals();
   }, []);
 
   const filteredDeals = deals.filter((deal) => {
@@ -76,27 +98,33 @@ export default function MyDeals() {
           </TableHeader>
 
           <TableBody>
-            {filteredDeals.map((deal) => {
-              const { id, title, city, price, is_private } = deal;
+            {deals.length > 0 ? (
+              filteredDeals.map((deal) => {
+                const { id, title, city, price, is_private } = deal;
 
-              return (
-                <TableRow key={deal.id}>
-                  <TableCell>{title}</TableCell>
+                return (
+                  <TableRow key={id}>
+                    <TableCell>{title}</TableCell>
 
-                  <TableCell>{city}</TableCell>
+                    <TableCell>{city}</TableCell>
 
-                  <TableCell>
-                    ₹{Number(price).toLocaleString("en-IN")}
-                  </TableCell>
+                    <TableCell>{formatPrice(price)}</TableCell>
 
-                  <TableCell>
-                    <Badge variant={is_private ? "secondary" : "default"}>
-                      {is_private ? "Private" : "Public"}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                    <TableCell>
+                      <Badge variant={is_private ? "secondary" : "default"}>
+                        {is_private ? "Private" : "Public"}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4} className="h-24 text-center">
+                  {loading ? "loading..." : "No records"}
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>

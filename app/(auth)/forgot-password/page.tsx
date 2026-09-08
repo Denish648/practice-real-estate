@@ -10,28 +10,39 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { forgotPasswordSchema } from "@/lib/validations/auth";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
-
+  const [fieldError, setFieldError] = useState("");
   const [email, setEmail] = useState("");
 
-  function onChangeText(e: any) {
+  function onChangeText(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
     setEmail(value);
   }
-  async function handleSubmit(e: any) {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await ForgotPassowordAPI(email);
+    const result = forgotPasswordSchema.safeParse({ email });
+
+    if (!result.success) {
+      setFieldError(result.error.issues[0].message);
+      setLoading(false);
+      return;
+    }
+
+    const { email: newEmail } = result.data;
+
+    const { error } = await ForgotPassowordAPI(newEmail);
 
     if (error) {
+      toast.error(error.message);
       setLoading(false);
-
-      toast.error("Something went wrong");
+      setFieldError("");
       return;
     }
 
@@ -60,15 +71,15 @@ export default function ForgotPassword() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="m@example.com"
+                    placeholder="abc@example.com"
                     name="email"
                     onChange={(e) => onChangeText(e)}
-                    required
+                    error={fieldError}
                   />
                 </Field>
                 <Button
                   type="submit"
-                  className="border w-max px-5"
+                  className="border w-max px-5 cursor-pointer"
                   disabled={loading}
                 >
                   {loading ? "sending a link..." : "submit"}

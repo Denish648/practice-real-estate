@@ -19,6 +19,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LoginAPI } from "@/app/api/(auth)/login";
+import { LoginInput, loginSchema } from "@/lib/validations/auth";
+import { toast } from "sonner";
 
 export function LoginForm({
   className,
@@ -26,11 +28,12 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState({
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [data, setData] = useState<LoginInput>({
     email: "",
     password: "",
   });
-  const onChangeText = (e: any) => {
+  const onChangeText = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name;
     const value = e.target.value;
 
@@ -40,28 +43,40 @@ export function LoginForm({
     }));
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    const { userData, error } = await LoginAPI(data.email, data.password);
 
-    if (error) {
-      console.log(error);
+    setLoading(true);
+
+    const result = loginSchema.safeParse(data);
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+
+      result.error.issues.forEach((issue) => {
+        const filed = issue.path[0];
+
+        if (typeof filed === "string") {
+          fieldErrors[filed] = issue.message;
+        }
+      });
+      setErrors(fieldErrors);
       setLoading(false);
       return;
     }
+    const { email, password } = result.data;
+    const { error } = await LoginAPI(email, password);
 
-    const role = userData?.user?.user_metadata?.role;
-
-    if (role) {
-      router.push(`/dashboard/${role}`);
-      router.refresh();
+    if (error) {
+      toast.error(error.message);
       setLoading(false);
-    } else {
-      router.push("/");
-      router.refresh();
-      setLoading(false);
+      setErrors({});
+      return;
     }
+    toast.success("login successful");
+    router.push("/dashboard");
+    router.refresh();
+    setLoading(false);
   };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -78,10 +93,10 @@ export function LoginForm({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="abc@example.com"
                   name="email"
                   onChange={(e) => onChangeText(e)}
-                  required
+                  error={errors.email}
                 />
               </Field>
               <Field>
@@ -99,7 +114,7 @@ export function LoginForm({
                   type="password"
                   name="password"
                   onChange={(e) => onChangeText(e)}
-                  required
+                  error={errors.password}
                 />
               </Field>
               <Field>

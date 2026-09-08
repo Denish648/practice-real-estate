@@ -1,5 +1,4 @@
 import { cn } from "cn";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,6 +20,8 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { SignupInput, signupSchema } from "@/lib/validations/auth";
 
 export function SignupForm({
   className,
@@ -28,52 +29,70 @@ export function SignupForm({
 }: React.ComponentProps<"div">) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState({
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [data, setData] = useState<SignupInput>({
     email: "",
     password: "",
     name: "",
     company: "",
     phone: "",
-    role: "",
+    role: "broker",
   });
-  const onChangeText = (e: any) => {
+  const onChangeText = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name;
-    const value = e.target.value;
+    let value = e.target.value;
+
+    if (name === "phone") value = value.replace(/\D/g, "");
+
     setData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    const { userData, error } = await SignupAPI(
-      data.email,
-      data.password,
-      data.name,
-      data.company,
-      data.role,
-      data.phone,
-    );
 
-    if (error) {
-      console.log(error);
+    const result = signupSchema.safeParse(data);
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+
+      result.error.issues.forEach((issue) => {
+        const filed = issue.path[0];
+
+        if (typeof filed === "string") {
+          fieldErrors[filed] = issue.message;
+        }
+      });
+      setErrors(fieldErrors);
       setLoading(false);
       return;
     }
 
-    const role = userData?.user?.user_metadata?.role;
+    const { name, email, company, password, phone, role } = result.data;
 
-    if (role) {
+    const { error } = await SignupAPI(
+      email,
+      password,
+      name,
+      company,
+      role,
+      phone,
+    );
+
+    if (error) {
+      toast.error(error.message);
       setLoading(false);
-      router.push(`/dashboard/${role}`);
-      router.refresh();
-    } else {
-      setLoading(false);
-      router.push("/");
-      router.refresh();
+      setErrors({});
+      return;
     }
+
+    setLoading(false);
+    toast.success("account created successfully");
+    router.push("/dashboard");
+    router.refresh();
   };
 
   return (
@@ -98,7 +117,7 @@ export function SignupForm({
                   placeholder="John Doe"
                   value={data.name}
                   onChange={(e) => onChangeText(e)}
-                  required
+                  error={errors.name}
                 />
               </Field>
               {/* email */}
@@ -108,10 +127,10 @@ export function SignupForm({
                   id="email"
                   type="email"
                   name="email"
-                  placeholder="m@example.com"
+                  placeholder="abc@example.com"
                   value={data.email}
                   onChange={(e) => onChangeText(e)}
-                  required
+                  error={errors.email}
                 />
               </Field>
               {/* password */}
@@ -124,7 +143,7 @@ export function SignupForm({
                   type="password"
                   name="password"
                   onChange={(e) => onChangeText(e)}
-                  required
+                  error={errors.password}
                 />
               </Field>
               {/* company */}
@@ -137,7 +156,7 @@ export function SignupForm({
                   placeholder="company name"
                   value={data.company}
                   onChange={(e) => onChangeText(e)}
-                  required
+                  error={errors.company}
                 />
               </Field>
               {/* role */}
@@ -147,40 +166,31 @@ export function SignupForm({
                 onValueChange={(value) => {
                   setData((prev) => ({
                     ...prev,
-                    role: value,
+                    role: value as SignupInput["role"],
                   }));
                 }}
               >
                 <div className="flex items-center gap-3">
-                  <RadioGroupItem
-                    value="broker"
-                    id="broker"
-                    checked={data.role === "broker"}
-                    onChange={(e) => onChangeText(e)}
-                  />
+                  <RadioGroupItem value="broker" id="broker" />
                   <Label htmlFor="broker">Broker</Label>
                 </div>
                 <div className="flex items-center gap-3">
-                  <RadioGroupItem
-                    value="buyer"
-                    id="buyer"
-                    checked={data.role === "buyer"}
-                    onChange={(e) => onChangeText(e)}
-                  />
+                  <RadioGroupItem value="buyer" id="buyer" />
                   <Label htmlFor="buyer">Buyer</Label>
                 </div>
               </RadioGroup>
               {/* phone */}
               <Field>
-                <FieldLabel htmlFor="email">Phone</FieldLabel>
+                <FieldLabel htmlFor="phone">Phone</FieldLabel>
                 <Input
                   id="phone"
-                  type="number"
+                  type="tel"
+                  maxLength={10}
                   name="phone"
                   placeholder="1234567890"
                   value={data.phone}
                   onChange={(e) => onChangeText(e)}
-                  required
+                  error={errors.phone}
                 />
               </Field>
               <Field>

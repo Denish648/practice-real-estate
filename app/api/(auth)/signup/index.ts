@@ -24,6 +24,9 @@ export async function SignupAPI(
     });
     return { userData: data, error };
   } catch (e) {
-    return { userData: null, error: e };
+    if (e instanceof Error) {
+      return { userData: null, error: e };
+    }
+    return { userData: null, error: new Error("something went wrong") };
   }
 }

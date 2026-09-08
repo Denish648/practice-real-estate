@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/client";
 export async function creatDealAPI(
   title: string,
   city: string,
-  price: string,
+  price: number,
   is_private: boolean,
 ) {
   try {
@@ -28,6 +28,9 @@ export async function creatDealAPI(
 
     return { error };
   } catch (e) {
-    return { error: e };
+    if (e instanceof Error) {
+      return { error: e };
+    }
+    return { error: new Error("something went wrong") };
   }
 }

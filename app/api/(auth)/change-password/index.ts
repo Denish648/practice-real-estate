@@ -6,6 +6,9 @@ export async function ChangePassowordAPI(password: string) {
     const { error } = await supabase.auth.updateUser({ password });
     return { error };
   } catch (e) {
-    return { userData: null, error: e };
+    if (e instanceof Error) {
+      return { error: e };
+    }
+    return { error: new Error("something went wrong") };
   }
 }
