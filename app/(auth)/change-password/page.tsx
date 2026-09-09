@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Field, FieldLabel } from "@/components/ui/field"
+import { FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { changePasswordSchema } from "@/lib/validations/auth"
 import { Eye, EyeOff } from "lucide-react"
@@ -62,7 +62,7 @@ export default function ChangePassword() {
           <Card>
             <CardHeader className="text-center">
               <CardTitle className="text-xl">Change Your Password</CardTitle>
-              <CardDescription>enter new password</CardDescription>
+              <CardDescription>Enter New Password</CardDescription>
             </CardHeader>
             <CardContent>
               <form
@@ -70,12 +70,12 @@ export default function ChangePassword() {
                 className="flex flex-col gap-5"
               >
                 <div className="w-full max-w-sm space-y-2">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <FieldLabel htmlFor="new-password">New Password</FieldLabel>
                   <div className="relative">
                     <Input
                       className="bg-background"
                       id="password-toggle"
-                      placeholder="Enter your password"
+                      placeholder="Enter your new password"
                       value={newPassword}
                       onChange={(e) => onChangeText(e)}
                       type={showPassword ? "text" : "password"}
