@@ -73,6 +73,7 @@ export default function ForgotPassword() {
                     type="email"
                     placeholder="abc@example.com"
                     name="email"
+                    value={email}
                     onChange={(e) => onChangeText(e)}
                     error={fieldError}
                   />

@@ -96,8 +96,9 @@ export function LoginForm({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="abc@example.com"
                   name="email"
+                  value={data.email}
+                  placeholder="abc@example.com"
                   onChange={(e) => onChangeText(e)}
                   error={errors.email}
                 />
@@ -116,6 +117,9 @@ export function LoginForm({
                   <Input
                     className="bg-background"
                     id="password-toggle"
+                    name="password"
+                    value={data.password}
+                    onChange={(e) => onChangeText(e)}
                     placeholder="Enter your password"
                     error={errors.password}
                     type={showPassword ? "text" : "password"}

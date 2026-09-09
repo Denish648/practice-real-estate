@@ -76,6 +76,8 @@ export default function ChangePassword() {
                       className="bg-background"
                       id="password-toggle"
                       placeholder="Enter your password"
+                      value={newPassword}
+                      onChange={(e) => onChangeText(e)}
                       type={showPassword ? "text" : "password"}
                       error={fieldError}
                     />

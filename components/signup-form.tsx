@@ -142,6 +142,9 @@ export function SignupForm({
                   <Input
                     className="bg-background"
                     id="password-toggle"
+                    name="password"
+                    value={data.password}
+                    onChange={(e) => onChangeText(e)}
                     placeholder="Enter your password"
                     type={showPassword ? "text" : "password"}
                     error={errors.password}

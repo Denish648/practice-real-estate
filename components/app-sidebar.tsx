@@ -1,5 +1,5 @@
-import { NavMain } from "@/components/nav-main";
-import { NavUser } from "@/components/nav-user";
+import { NavMain } from "@/components/nav-main"
+import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
   SidebarContent,
@@ -8,14 +8,14 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { getUser } from "@/lib/data/user";
+} from "@/components/ui/sidebar"
+import { getUser } from "@/lib/data/user"
 import {
   LayoutDashboard,
   Building2,
   PlusCircle,
   CommandIcon,
-} from "lucide-react";
+} from "lucide-react"
 
 const brokerData = [
   {
@@ -33,7 +33,7 @@ const brokerData = [
     url: "/dashboard/broker/create-deal",
     icon: <PlusCircle />,
   },
-];
+]
 
 const buyerData = [
   {
@@ -46,14 +46,14 @@ const buyerData = [
     url: "/dashboard/buyer/browse-deals",
     icon: <Building2 />,
   },
-];
+]
 
 export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const { user, error } = await getUser();
-  if (error) throw error;
-  if (!user) return <div>user not found</div>;
+  const { user, error } = await getUser()
+  if (error) throw error
+  if (!user) return <div>user not found</div>
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -86,5 +86,5 @@ export async function AppSidebar({
         />
       </SidebarFooter>
     </Sidebar>
-  );
+  )
 }
