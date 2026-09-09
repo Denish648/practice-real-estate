@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client"
 
 export async function SignupAPI(
   email: string,
@@ -9,7 +9,7 @@ export async function SignupAPI(
   phone: string,
 ) {
   try {
-    const supabase = createClient();
+    const supabase = createClient()
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -21,12 +21,12 @@ export async function SignupAPI(
           phone,
         },
       },
-    });
-    return { userData: data, error };
+    })
+    return { userData: data, error }
   } catch (e) {
     if (e instanceof Error) {
-      return { userData: null, error: e };
+      return { userData: null, error: e }
     }
-    return { userData: null, error: new Error("something went wrong") };
+    return { userData: null, error: new Error("something went wrong") }
   }
 }

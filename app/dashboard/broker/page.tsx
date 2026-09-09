@@ -4,35 +4,35 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { getDeals } from "@/lib/data/deals";
-import { getProfile } from "@/lib/data/profile";
-import { getUser } from "@/lib/data/user";
-import { formatPrice } from "@/lib/utils/format";
+} from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { getDeals } from "@/lib/data/deals"
+import { getProfile } from "@/lib/data/profile"
+import { getUser } from "@/lib/data/user"
+import { formatPrice } from "@/lib/utils/format"
 
 export default async function BrokerDashboard() {
-  const { user, error: userError } = await getUser();
-  if (userError) throw userError;
-  if (!user) throw new Error("Unauthorized");
+  const { user, error: userError } = await getUser()
+  if (userError) throw userError
+  if (!user) throw new Error("Unauthorized")
 
-  const { profileData: profile, error: profileError } = await getProfile();
-  if (profileError) throw profileError;
-  if (!profile) throw new Error("Profile not found");
+  const { profileData: profile, error: profileError } = await getProfile()
+  if (profileError) throw profileError
+  if (!profile) throw new Error("Profile not found")
 
-  const { data: deals, error: dealsError } = await getDeals(user.id);
-  if (dealsError) throw dealsError;
-  if (!deals) throw new Error("Deals not found");
+  const { data: deals, error: dealsError } = await getDeals(user.id)
+  if (dealsError) throw dealsError
+  if (!deals) throw new Error("Deals not found")
 
-  const totalDeals = deals.length;
-  const publicDeals = deals.filter((deal) => !deal.is_private).length;
-  const privateDeals = deals.filter((deal) => deal.is_private).length;
+  const totalDeals = deals.length
+  const publicDeals = deals.filter((deal) => !deal.is_private).length
+  const privateDeals = deals.filter((deal) => deal.is_private).length
 
   const totalPrice = deals.reduce((total, deal) => {
-    return total + deal.price;
-  }, 0);
+    return total + deal.price
+  }, 0)
 
   return (
     <>
@@ -107,5 +107,5 @@ export default async function BrokerDashboard() {
         </div>
       </div>
     </>
-  );
+  )
 }

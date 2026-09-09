@@ -3,5 +3,5 @@ export default async function Home() {
     <>
       <h1 className="text-black text-4xl">home</h1>
     </>
-  );
+  )
 }

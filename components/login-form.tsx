@@ -1,86 +1,86 @@
-import { cn } from "cn";
+import { cn } from "cn"
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { LoginAPI } from "@/app/api/(auth)/login";
-import { LoginInput, loginSchema } from "@/lib/validations/auth";
-import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+} from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { LoginAPI } from "@/app/api/(auth)/login"
+import { LoginInput, loginSchema } from "@/lib/validations/auth"
+import { toast } from "sonner"
+import { Eye, EyeOff } from "lucide-react"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const [data, setData] = useState<LoginInput>({
     email: "",
     password: "",
-  });
+  })
   const onChangeText = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.name;
-    const value = e.target.value;
+    const name = e.target.name
+    const value = e.target.value
 
     setData((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    setLoading(true);
+    setLoading(true)
 
-    const result = loginSchema.safeParse(data);
+    const result = loginSchema.safeParse(data)
 
     if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
+      const fieldErrors: Record<string, string> = {}
 
       result.error.issues.forEach((issue) => {
-        const filed = issue.path[0];
+        const filed = issue.path[0]
 
         if (typeof filed === "string") {
-          fieldErrors[filed] = issue.message;
+          fieldErrors[filed] = issue.message
         }
-      });
-      setErrors(fieldErrors);
-      setLoading(false);
-      return;
+      })
+      setErrors(fieldErrors)
+      setLoading(false)
+      return
     }
-    const { email, password } = result.data;
-    const { error } = await LoginAPI(email, password);
+    const { email, password } = result.data
+    const { error } = await LoginAPI(email, password)
 
     if (error) {
-      toast.error(error.message);
-      setLoading(false);
-      setErrors({});
-      return;
+      toast.error(error.message)
+      setLoading(false)
+      setErrors({})
+      return
     }
-    toast.success("login successful");
-    router.push("/dashboard");
-    router.refresh();
-    setLoading(false);
-    setErrors({});
-  };
+    toast.success("login successful")
+    router.push("/dashboard")
+    router.refresh()
+    setLoading(false)
+    setErrors({})
+  }
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -157,5 +157,5 @@ export function LoginForm({
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
-  );
+  )
 }

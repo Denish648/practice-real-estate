@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { useState } from "react";
+import { useState } from "react"
 import {
   Table,
   TableBody,
@@ -8,30 +8,30 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { formatPrice } from "@/lib/utils/format";
-import type { Deal } from "@/lib/types/deal";
+} from "@/components/ui/select"
+import { formatPrice } from "@/lib/utils/format"
+import type { Deal } from "@/lib/types/deal"
 
 interface MyDealsTableProps {
-  deals: Deal[];
+  deals: Deal[]
 }
 
 export function MyDealsTable({ deals }: MyDealsTableProps) {
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("all")
 
   const filteredDeals = deals.filter((deal) => {
-    if (filter === "public") return deal.is_private === false;
-    if (filter === "private") return deal.is_private === true;
-    return true;
-  });
+    if (filter === "public") return deal.is_private === false
+    if (filter === "private") return deal.is_private === true
+    return true
+  })
 
   return (
     <>
@@ -63,7 +63,7 @@ export function MyDealsTable({ deals }: MyDealsTableProps) {
           <TableBody>
             {filteredDeals.length > 0 ? (
               filteredDeals.map((deal) => {
-                const { id, title, city, price, is_private } = deal;
+                const { id, title, city, price, is_private } = deal
 
                 return (
                   <TableRow key={id}>
@@ -76,7 +76,7 @@ export function MyDealsTable({ deals }: MyDealsTableProps) {
                       </Badge>
                     </TableCell>
                   </TableRow>
-                );
+                )
               })
             ) : (
               <TableRow>
@@ -89,5 +89,5 @@ export function MyDealsTable({ deals }: MyDealsTableProps) {
         </Table>
       </div>
     </>
-  );
+  )
 }

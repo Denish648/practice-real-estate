@@ -1,29 +1,29 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { getDeals } from "@/lib/data/deals";
-import { getProfile } from "@/lib/data/profile";
-import { formatPrice } from "@/lib/utils/format";
+} from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { getDeals } from "@/lib/data/deals"
+import { getProfile } from "@/lib/data/profile"
+import { formatPrice } from "@/lib/utils/format"
 
 export default async function BuyerDashboard() {
-  const { profileData: profile, error: profileError } = await getProfile();
-  if (profileError) throw profileError;
-  if (!profile) throw new Error("Profile not found");
+  const { profileData: profile, error: profileError } = await getProfile()
+  if (profileError) throw profileError
+  if (!profile) throw new Error("Profile not found")
 
-  const { data: deals, error: dealsError } = await getDeals();
-  if (dealsError) throw dealsError;
-  if (!deals) throw new Error("Deals not found");
+  const { data: deals, error: dealsError } = await getDeals()
+  if (dealsError) throw dealsError
+  if (!deals) throw new Error("Deals not found")
 
   const totalPrice = deals.reduce((total, deal) => {
-    return total + deal.price;
-  }, 0);
+    return total + deal.price
+  }, 0)
 
   return (
     <>
@@ -80,5 +80,5 @@ export default async function BuyerDashboard() {
         </div>
       </div>
     </>
-  );
+  )
 }

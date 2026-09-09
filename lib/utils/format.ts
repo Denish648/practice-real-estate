@@ -1,3 +1,3 @@
 export function formatPrice(price: number) {
-  return `₹${price.toLocaleString("en-IN")}`;
+  return `₹${price.toLocaleString("en-IN")}`
 }

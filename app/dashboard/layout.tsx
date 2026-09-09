@@ -1,6 +1,6 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,5 +13,5 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </main>
       </SidebarProvider>
     </TooltipProvider>
-  );
+  )
 }

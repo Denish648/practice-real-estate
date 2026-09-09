@@ -1,7 +1,7 @@
-import * as React from "react";
-import { cn } from "cn";
+import * as React from "react"
+import { cn } from "cn"
 
-type InputProps = React.ComponentProps<"input"> & { error?: string };
+type InputProps = React.ComponentProps<"input"> & { error?: string }
 
 function Input({ className, type, error, ...props }: InputProps) {
   return (
@@ -18,7 +18,7 @@ function Input({ className, type, error, ...props }: InputProps) {
       />
       {error && <p className="mt-1 text-sm text-destructive">*{error}</p>}
     </div>
-  );
+  )
 }
 
-export { Input };
+export { Input }
