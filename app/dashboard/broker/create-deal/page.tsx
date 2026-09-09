@@ -1,73 +1,74 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createDealAPI } from "@/app/api/deals";
-import { toast } from "sonner";
-import { CreateDealsInput, createDealsSchema } from "@/lib/validations/deal";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+"use client"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { createDealAPI } from "@/app/api/deals"
+import { toast } from "sonner"
+import { CreateDealsInput, createDealsSchema } from "@/lib/validations/deal"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Field, FieldLabel } from "@/components/ui/field"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
 export default function CreateDeal() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const [data, setData] = useState<CreateDealsInput>({
     title: "",
     city: "",
     price: 0,
     is_private: false,
-  });
+  })
 
   const onChangeText = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.name;
-    let value =
-      e.target.type === "checkbox" ? e.target.checked : e.target.value;
-
+    const name = e.target.name
+    const value = e.target.value
     setData((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
 
-    const result = createDealsSchema.safeParse(data);
+    setLoading(true)
+
+    const result = createDealsSchema.safeParse(data)
 
     if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
+      const fieldErrors: Record<string, string> = {}
 
       result.error.issues.forEach((issue) => {
-        const filed = issue.path[0];
+        const filed = issue.path[0]
 
         if (typeof filed === "string") {
-          fieldErrors[filed] = issue.message;
+          fieldErrors[filed] = issue.message
         }
-      });
-      setErrors(fieldErrors);
-      toast.error("invalid form data");
-      setLoading(false);
-      return;
+      })
+      setErrors(fieldErrors)
+      toast.error("invalid form data")
+      setLoading(false)
+      return
     }
 
-    const { title, city, price, is_private } = result.data;
+    const { title, city, price, is_private } = result.data
 
-    const { error } = await createDealAPI(title, city, price, is_private);
+    const { error } = await createDealAPI(title, city, price, is_private)
 
     if (error) {
-      toast.error(error.message);
-      setErrors({});
-      setLoading(false);
-      return;
+      toast.error(error.message)
+      setErrors({})
+      setLoading(false)
+      return
     }
-    toast.success("Deal created successfully");
-    router.push("/dashboard");
-    router.refresh();
-  };
+    setErrors({})
+    setLoading(false)
+    toast.success("Deal created successfully")
+    router.push("/dashboard")
+    router.refresh()
+  }
 
   return (
     <>
@@ -144,5 +145,5 @@ export default function CreateDeal() {
         </Card>
       </div>
     </>
-  );
+  )
 }

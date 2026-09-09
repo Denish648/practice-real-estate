@@ -1,58 +1,58 @@
-"use client"
-import { ChangePasswordAPI } from "@/app/api/(auth)/change-password"
-import { Button } from "@/components/ui/button"
+"use client";
+import { ChangePasswordAPI } from "@/app/api/(auth)/change-password";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { changePasswordSchema } from "@/lib/validations/auth"
-import { Eye, EyeOff } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { toast } from "sonner"
+} from "@/components/ui/card";
+import { FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { changePasswordSchema } from "@/lib/validations/auth";
+import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function ChangePassword() {
-  const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [fieldError, setFieldError] = useState("")
-  const router = useRouter()
-  const [newPassword, setNewPassword] = useState("")
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [fieldError, setFieldError] = useState("");
+  const router = useRouter();
+  const [newPassword, setNewPassword] = useState("");
 
   function onChangeText(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value
-    setNewPassword(value)
+    const value = e.target.value;
+    setNewPassword(value);
   }
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
-    const result = changePasswordSchema.safeParse({ password: newPassword })
+    const result = changePasswordSchema.safeParse({ password: newPassword });
 
     if (!result.success) {
-      setFieldError(result.error.issues[0].message)
-      setLoading(false)
-      return
+      setFieldError(result.error.issues[0].message);
+      setLoading(false);
+      return;
     }
-    const { password } = result.data
+    const { password } = result.data;
 
-    const { error } = await ChangePasswordAPI(password)
+    const { error } = await ChangePasswordAPI(password);
 
     if (error) {
-      toast.error(error.message)
-      setLoading(false)
-      setFieldError("")
-      return
+      toast.error(error.message);
+      setLoading(false);
+      setFieldError("");
+      return;
     }
 
-    toast.success("password successully changed")
-    setLoading(false)
-    router.push("/login")
-    router.refresh()
+    toast.success("password successully changed");
+    setLoading(false);
+    router.push("/login");
+    router.refresh();
   }
 
   return (
@@ -109,5 +109,5 @@ export default function ChangePassword() {
         </div>
       </div>
     </>
-  )
+  );
 }

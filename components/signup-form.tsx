@@ -42,10 +42,7 @@ export function SignupForm({
   })
   const onChangeText = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name
-    let value = e.target.value
-
-    if (name === "phone") value = value.replace(/\D/g, "")
-
+    const value = e.target.value
     setData((prev) => ({
       ...prev,
       [name]: value,

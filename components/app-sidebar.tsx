@@ -9,6 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { getProfile } from "@/lib/data/profile"
 import { getUser } from "@/lib/data/user"
 import {
   LayoutDashboard,
@@ -55,6 +56,10 @@ export async function AppSidebar({
   if (error) throw error
   if (!user) return <div>user not found</div>
 
+  const { profileData: profile, error: profileError } = await getProfile()
+  if (profileError) throw profileError
+  if (!profile) throw new Error("Profile not found")
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -73,14 +78,12 @@ export async function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain
-          items={user.user_metadata.role === "broker" ? brokerData : buyerData}
-        />
+        <NavMain items={profile.role === "broker" ? brokerData : buyerData} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser
           user={{
-            name: user.user_metadata.name,
+            name: profile.name,
             email: user.email ?? "",
           }}
         />

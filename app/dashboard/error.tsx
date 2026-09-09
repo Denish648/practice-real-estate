@@ -1,9 +1,9 @@
-"use client";
+"use client"
 export default function Error({
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
   return (
     <>
@@ -12,5 +12,5 @@ export default function Error({
         <button onClick={() => reset()}>Try again</button>
       </div>
     </>
-  );
+  )
 }

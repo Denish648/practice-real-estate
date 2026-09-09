@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge"
 import {
   Table,
   TableBody,
@@ -6,19 +6,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { formatPrice } from "@/lib/utils/format";
-import { getDeals } from "@/lib/data/deals";
-import { getUser } from "@/lib/data/user";
+} from "@/components/ui/table"
+import { formatPrice } from "@/lib/utils/format"
+import { getDeals } from "@/lib/data/deals"
+import { getUser } from "@/lib/data/user"
 
 export default async function BrowseDeals() {
-  const { user, error: userError } = await getUser();
-  if (userError) throw userError;
-  if (!user) throw new Error("Unauthorized");
+  const { user, error: userError } = await getUser()
+  if (userError) throw userError
+  if (!user) throw new Error("Unauthorized")
 
-  const { data: deals, error: dealsError } = await getDeals();
-  if (dealsError) throw dealsError;
-  if (!deals) throw new Error("Deals not found");
+  const { data: deals, error: dealsError } = await getDeals()
+  if (dealsError) throw dealsError
+  if (!deals) throw new Error("Deals not found")
 
   return (
     <>
@@ -39,10 +39,10 @@ export default async function BrowseDeals() {
             <TableBody>
               {deals.length > 0 ? (
                 deals.map((deal) => {
-                  const { id, title, city, price, is_private } = deal;
+                  const { id, title, city, price, is_private } = deal
 
                   return (
-                    <TableRow key={deal.id}>
+                    <TableRow key={`key-${id}`}>
                       <TableCell>{title}</TableCell>
 
                       <TableCell>{city}</TableCell>
@@ -55,7 +55,7 @@ export default async function BrowseDeals() {
                         </Badge>
                       </TableCell>
                     </TableRow>
-                  );
+                  )
                 })
               ) : (
                 <TableRow>
@@ -69,5 +69,5 @@ export default async function BrowseDeals() {
         </div>
       </div>
     </>
-  );
+  )
 }
