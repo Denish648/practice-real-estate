@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 
-export async function ForgotPassowordAPI(email: string) {
+export async function ForgotPasswordAPI(email: string) {
   try {
     const supabase = createClient();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {

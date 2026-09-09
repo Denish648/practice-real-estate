@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 
-export async function creatDealAPI(
+export async function createDealAPI(
   title: string,
   city: string,
   price: number,

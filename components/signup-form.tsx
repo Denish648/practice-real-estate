@@ -1,35 +1,37 @@
-import { cn } from "cn";
-import { Button } from "@/components/ui/button";
+import { cn } from "cn"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { SignupAPI } from "@/app/api/(auth)/signup";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { Label } from "./ui/label";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { SignupInput, signupSchema } from "@/lib/validations/auth";
+} from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { useState } from "react"
+import { SignupAPI } from "@/app/api/(auth)/signup"
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group"
+import { Label } from "./ui/label"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { SignupInput, signupSchema } from "@/lib/validations/auth"
+import { Eye, EyeOff } from "lucide-react"
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const [data, setData] = useState<SignupInput>({
     email: "",
     password: "",
@@ -37,41 +39,41 @@ export function SignupForm({
     company: "",
     phone: "",
     role: "broker",
-  });
+  })
   const onChangeText = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.name;
-    let value = e.target.value;
+    const name = e.target.name
+    let value = e.target.value
 
-    if (name === "phone") value = value.replace(/\D/g, "");
+    if (name === "phone") value = value.replace(/\D/g, "")
 
     setData((prev) => ({
       ...prev,
       [name]: value,
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
-    const result = signupSchema.safeParse(data);
+    const result = signupSchema.safeParse(data)
 
     if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
+      const fieldErrors: Record<string, string> = {}
 
       result.error.issues.forEach((issue) => {
-        const filed = issue.path[0];
+        const filed = issue.path[0]
 
         if (typeof filed === "string") {
-          fieldErrors[filed] = issue.message;
+          fieldErrors[filed] = issue.message
         }
-      });
-      setErrors(fieldErrors);
-      setLoading(false);
-      return;
+      })
+      setErrors(fieldErrors)
+      setLoading(false)
+      return
     }
 
-    const { name, email, company, password, phone, role } = result.data;
+    const { name, email, company, password, phone, role } = result.data
 
     const { error } = await SignupAPI(
       email,
@@ -80,20 +82,20 @@ export function SignupForm({
       company,
       role,
       phone,
-    );
+    )
 
     if (error) {
-      toast.error(error.message);
-      setLoading(false);
-      setErrors({});
-      return;
+      toast.error(error.message)
+      setLoading(false)
+      setErrors({})
+      return
     }
 
-    setLoading(false);
-    toast.success("account created successfully");
-    router.push("/dashboard");
-    router.refresh();
-  };
+    setLoading(false)
+    toast.success("account created successfully")
+    router.push("/dashboard")
+    router.refresh()
+  }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -134,18 +136,31 @@ export function SignupForm({
                 />
               </Field>
               {/* password */}
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
+              <div className="w-full max-w-sm space-y-2">
+                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <div className="relative">
+                  <Input
+                    className="bg-background"
+                    id="password-toggle"
+                    placeholder="Enter your password"
+                    type={showPassword ? "text" : "password"}
+                    error={errors.password}
+                  />
+                  <Button
+                    className="absolute top-0 right-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                    size="icon"
+                    type="button"
+                    variant="ghost"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  name="password"
-                  onChange={(e) => onChangeText(e)}
-                  error={errors.password}
-                />
-              </Field>
+              </div>
               {/* company */}
               <Field>
                 <FieldLabel htmlFor="email">Company</FieldLabel>
@@ -167,7 +182,7 @@ export function SignupForm({
                   setData((prev) => ({
                     ...prev,
                     role: value as SignupInput["role"],
-                  }));
+                  }))
                 }}
               >
                 <div className="flex items-center gap-3">
@@ -210,5 +225,5 @@ export function SignupForm({
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
-  );
+  )
 }

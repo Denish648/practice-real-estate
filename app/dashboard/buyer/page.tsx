@@ -10,6 +10,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { getDeals } from "@/lib/data/deals";
 import { getProfile } from "@/lib/data/profile";
+import { formatPrice } from "@/lib/utils/format";
 
 export default async function BuyerDashboard() {
   const { profileData: profile, error: profileError } = await getProfile();
@@ -71,7 +72,9 @@ export default async function BuyerDashboard() {
           <Card>
             <CardHeader>
               <CardDescription>Total Price</CardDescription>
-              <CardTitle className="text-2xl">{totalPrice}</CardTitle>
+              <CardTitle className="text-2xl">
+                {formatPrice(totalPrice)}
+              </CardTitle>
             </CardHeader>
           </Card>
         </div>

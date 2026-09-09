@@ -1,53 +1,53 @@
-"use client";
-import { ForgotPassowordAPI } from "@/app/api/(auth)/forgot-password";
-import { Button } from "@/components/ui/button";
+"use client"
+import { ForgotPasswordAPI } from "@/app/api/(auth)/forgot-password"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { forgotPasswordSchema } from "@/lib/validations/auth";
-import { useState } from "react";
-import { toast } from "sonner";
+} from "@/components/ui/card"
+import { Field, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import { forgotPasswordSchema } from "@/lib/validations/auth"
+import { useState } from "react"
+import { toast } from "sonner"
 
 export default function ForgotPassword() {
-  const [loading, setLoading] = useState(false);
-  const [fieldError, setFieldError] = useState("");
-  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false)
+  const [fieldError, setFieldError] = useState("")
+  const [email, setEmail] = useState("")
 
   function onChangeText(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value;
-    setEmail(value);
+    const value = e.target.value
+    setEmail(value)
   }
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
-    const result = forgotPasswordSchema.safeParse({ email });
+    const result = forgotPasswordSchema.safeParse({ email })
 
     if (!result.success) {
-      setFieldError(result.error.issues[0].message);
-      setLoading(false);
-      return;
+      setFieldError(result.error.issues[0].message)
+      setLoading(false)
+      return
     }
 
-    const { email: newEmail } = result.data;
+    const { email: newEmail } = result.data
 
-    const { error } = await ForgotPassowordAPI(newEmail);
+    const { error } = await ForgotPasswordAPI(newEmail)
 
     if (error) {
-      toast.error(error.message);
-      setLoading(false);
-      setFieldError("");
-      return;
+      toast.error(error.message)
+      setLoading(false)
+      setFieldError("")
+      return
     }
 
-    toast.success("Check your mailbox for the password reset link");
-    setLoading(false);
+    toast.success("Check your mailbox for the password reset link")
+    setLoading(false)
   }
 
   return (
@@ -90,5 +90,5 @@ export default function ForgotPassword() {
         </div>
       </div>
     </>
-  );
+  )
 }

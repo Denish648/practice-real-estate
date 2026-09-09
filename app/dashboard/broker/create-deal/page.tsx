@@ -1,11 +1,12 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { creatDealAPI } from "@/app/api/deals";
+import { createDealAPI } from "@/app/api/deals";
 import { toast } from "sonner";
 import { CreateDealsInput, createDealsSchema } from "@/lib/validations/deal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -55,7 +56,7 @@ export default function CreateDeal() {
 
     const { title, city, price, is_private } = result.data;
 
-    const { error } = await creatDealAPI(title, city, price, is_private);
+    const { error } = await createDealAPI(title, city, price, is_private);
 
     if (error) {
       toast.error(error.message);
@@ -70,7 +71,7 @@ export default function CreateDeal() {
 
   return (
     <>
-      <div className="flex flex-col gap-10 p-5">
+      <div className="flex flex-col gap-10 p-5 max-w-xl">
         <Card>
           <CardHeader>
             <CardTitle className="text-3xl font-semibold tracking-tight">
@@ -79,68 +80,63 @@ export default function CreateDeal() {
           </CardHeader>
 
           <CardContent>
-            <form
-              className="flex flex-col gap-5 max-w-md"
-              onSubmit={handleSubmit}
-            >
+            <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
               {/* Title */}
-              <div className="flex flex-col gap-2">
-                <Label>title</Label>
+              <Field>
+                <FieldLabel htmlFor="title">Title</FieldLabel>
                 <Input
-                  className="border p-2"
+                  id="title"
                   type="text"
                   name="title"
                   value={data.title}
                   onChange={onChangeText}
                   error={errors.title}
                 />
-              </div>
+              </Field>
 
               {/* City */}
-              <div className="flex flex-col gap-2">
-                <Label>city</Label>
+              <Field>
+                <FieldLabel htmlFor="city">City</FieldLabel>
                 <Input
-                  className="border p-2"
+                  id="city"
                   type="text"
                   name="city"
                   value={data.city}
                   onChange={onChangeText}
                   error={errors.city}
                 />
-              </div>
+              </Field>
 
               {/* Price */}
-              <div className="flex flex-col gap-2">
-                <Label>price (₹)</Label>
+              <Field>
+                <FieldLabel htmlFor="price">Price (₹)</FieldLabel>
                 <Input
-                  className="border p-2"
+                  id="price"
                   type="number"
                   name="price"
                   value={data.price}
                   onChange={onChangeText}
                   error={errors.price}
                 />
-              </div>
+              </Field>
 
               {/* Is Private Checkbox */}
-              <div className="flex">
-                <Input
+              <Field className="flex-row">
+                <input
                   type="checkbox"
                   id="is_private"
                   name="is_private"
                   checked={data.is_private}
                   onChange={onChangeText}
+                  className="cursor-pointer !w-max"
                 />
                 <Label htmlFor="is_private">
                   Private Deal (only visible to you)
                 </Label>
-              </div>
+              </Field>
+              {/* </div> */}
 
-              <Button
-                type="submit"
-                disabled={loading}
-                className="border px-5 py-2 w-max bg-black text-white disabled:opacity-50"
-              >
+              <Button type="submit" disabled={loading} className="w-max">
                 {loading ? "submitting..." : "submit"}
               </Button>
             </form>

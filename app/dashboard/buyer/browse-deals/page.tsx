@@ -1,4 +1,3 @@
-"use client";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -8,26 +7,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { createClient } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/utils/format";
-import { useEffect, useState } from "react";
+import { getDeals } from "@/lib/data/deals";
+import { getUser } from "@/lib/data/user";
 
-export default function BrowseDeals() {
-  const [deals, setDeals] = useState<any[]>([]);
-  useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from("deals")
-      .select("*")
-      .then(({ data }) => {
-        if (data) setDeals(data);
-      });
-  }, []);
+export default async function BrowseDeals() {
+  const { user, error: userError } = await getUser();
+  if (userError) throw userError;
+  if (!user) throw new Error("Unauthorized");
+
+  const { data: deals, error: dealsError } = await getDeals();
+  if (dealsError) throw dealsError;
+  if (!deals) throw new Error("Deals not found");
 
   return (
     <>
       <div className="flex flex-col gap-10 p-5">
-        <h1 className="text-3xl font-semibold tracking-tight">My Deals</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Browse Deals</h1>
 
         <div className="rounded-lg border">
           <Table>
@@ -41,25 +37,33 @@ export default function BrowseDeals() {
             </TableHeader>
 
             <TableBody>
-              {deals.map((deal) => {
-                const { id, title, city, price, is_private } = deal;
+              {deals.length > 0 ? (
+                deals.map((deal) => {
+                  const { id, title, city, price, is_private } = deal;
 
-                return (
-                  <TableRow key={deal.id}>
-                    <TableCell>{title}</TableCell>
+                  return (
+                    <TableRow key={deal.id}>
+                      <TableCell>{title}</TableCell>
 
-                    <TableCell>{city}</TableCell>
+                      <TableCell>{city}</TableCell>
 
-                    <TableCell>{formatPrice(price)}</TableCell>
+                      <TableCell>{formatPrice(price)}</TableCell>
 
-                    <TableCell>
-                      <Badge variant={is_private ? "secondary" : "default"}>
-                        {is_private ? "Private" : "Public"}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                      <TableCell>
+                        <Badge variant={is_private ? "secondary" : "default"}>
+                          {is_private ? "Private" : "Public"}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} className="h-24 text-center">
+                    No Deals Found.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>

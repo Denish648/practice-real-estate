@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 
-export async function ChangePassowordAPI(password: string) {
+export async function ChangePasswordAPI(password: string) {
   try {
     const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ password });

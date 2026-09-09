@@ -42,7 +42,7 @@ const buyerData = [
     icon: <LayoutDashboard />,
   },
   {
-    title: "My Deals",
+    title: "Browse Deals",
     url: "/dashboard/buyer/browse-deals",
     icon: <Building2 />,
   },
@@ -64,7 +64,7 @@ export async function AppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <a href="#">
+              <a href="/dashboard">
                 <CommandIcon className="size-5!" />
                 <span className="text-base font-semibold">Real estate</span>
               </a>
