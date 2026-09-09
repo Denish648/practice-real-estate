@@ -32,7 +32,6 @@ export default function CreateDeal() {
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
-
     setLoading(true)
 
     const result = createDealsSchema.safeParse(data)
@@ -41,10 +40,10 @@ export default function CreateDeal() {
       const fieldErrors: Record<string, string> = {}
 
       result.error.issues.forEach((issue) => {
-        const filed = issue.path[0]
+        const field = issue.path[0]
 
-        if (typeof filed === "string") {
-          fieldErrors[filed] = issue.message
+        if (typeof field === "string") {
+          fieldErrors[field] = issue.message
         }
       })
       setErrors(fieldErrors)
@@ -73,13 +72,12 @@ export default function CreateDeal() {
   return (
     <>
       <div className="flex flex-col gap-10 p-5 max-w-xl">
+        <CardHeader>
+          <CardTitle className="text-3xl font-semibold tracking-tight">
+            Create Deal
+          </CardTitle>
+        </CardHeader>
         <Card>
-          <CardHeader>
-            <CardTitle className="text-3xl font-semibold tracking-tight">
-              Create Deal
-            </CardTitle>
-          </CardHeader>
-
           <CardContent>
             <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
               {/* Title */}

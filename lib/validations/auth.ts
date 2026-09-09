@@ -8,8 +8,8 @@ export const loginSchema = z.object({
 export const signupSchema = z.object({
   name: z
     .string()
-    .regex(/^[A-Za-z\s]+$/, "only letters")
     .trim()
+    .regex(/^[A-Za-z\s]+$/, "only letters")
     .min(1, "required"),
   email: z.email().min(1, "required"),
   password: z

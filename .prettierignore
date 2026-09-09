@@ -6,3 +6,4 @@ build
 coverage
 public
 *.lock
+database.types.ts
