@@ -15,3 +15,19 @@ export async function getDeals(broker_id?: string) {
     return { data: null, error: e }
   }
 }
+
+export async function getDealById(id: string) {
+  try {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase
+      .from("deals")
+      .select("*, broker:profiles(id, name, company, phone, avatar_url)")
+      .eq("id", id)
+      .single()
+
+    return { data, error }
+  } catch (e) {
+    return { data: null, error: e }
+  }
+}
