@@ -22,7 +22,9 @@ export async function getDealById(id: string) {
 
     const { data, error } = await supabase
       .from("deals")
-      .select("*, broker:profiles(id, name, company, phone, avatar_url)")
+      .select(
+        "*, broker:profiles(id, name, company, phone, avatar_url),images:deal_images(id,path,sort_order)",
+      )
       .eq("id", id)
       .single()
 

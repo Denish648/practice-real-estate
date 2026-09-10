@@ -1,6 +1,11 @@
-const MAX_IMAGE_SIZE = 2 * 1024 * 1024 //2 MB
+export const DEFAULT_MAX_IMAGE_SIZE_MB = 2
+export const MAX_DEAL_IMAGES_COUNT = 5
+export const MAX_DEAL_IMAGE_SIZE_MB = 5
 
-export function validateImage(file: File) {
+export function validateImage(
+  file: File,
+  maxSizeMb = DEFAULT_MAX_IMAGE_SIZE_MB,
+) {
   if (!file.type.startsWith("image/")) {
     return {
       valid: false,
@@ -8,10 +13,26 @@ export function validateImage(file: File) {
     }
   }
 
-  if (file.size > MAX_IMAGE_SIZE) {
+  const maxSize = maxSizeMb * 1024 * 1024
+
+  if (file.size > maxSize) {
     return {
       valid: false,
-      error: "Image must be smaller than 2 MB",
+      error: `Image must be smaller than ${maxSizeMb} MB`,
+    }
+  }
+
+  return {
+    valid: true,
+    error: null,
+  }
+}
+
+export function validateImageCount(files: File[], maxCount: number) {
+  if (files.length > maxCount) {
+    return {
+      valid: false,
+      error: `Maximum ${maxCount} images are allowed`,
     }
   }
 

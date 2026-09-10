@@ -21,20 +21,24 @@ export async function createDealAPI(
       return { error: userError || new Error("User not authenticated") }
     }
 
-    const { error } = await supabase.from("deals").insert({
-      title,
-      city,
-      price,
-      is_private,
-      broker_id: user.id,
-    })
+    const { data, error } = await supabase
+      .from("deals")
+      .insert({
+        title,
+        city,
+        price,
+        is_private,
+        broker_id: user.id,
+      })
+      .select("id, broker_id")
+      .single()
 
-    return { error }
+    return { data, error }
   } catch (e) {
     if (e instanceof Error) {
-      return { error: e }
+      return { data: null, error: e }
     }
-    return { error: new Error("something went wrong") }
+    return { data: null, error: new Error("something went wrong") }
   }
 }
 
@@ -61,6 +65,28 @@ export async function deleteDealAPI(id: string) {
     const supabase = createClient()
     const { error } = await supabase.from("deals").delete().eq("id", id)
 
+    return { error }
+  } catch (e) {
+    if (e instanceof Error) {
+      return { error: e }
+    }
+    return { error: new Error("something went wrong") }
+  }
+}
+
+export async function addDealImage(
+  deal_id: string,
+  path: string,
+  sort_order: number,
+) {
+  try {
+    const supabase = createClient()
+
+    const { error } = await supabase.from("deal_images").insert({
+      deal_id,
+      path,
+      sort_order,
+    })
     return { error }
   } catch (e) {
     if (e instanceof Error) {

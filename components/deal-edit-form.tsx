@@ -17,12 +17,30 @@ import { deleteDealAPI, updateDealAPI } from "@/app/api/deals"
 import { toast } from "sonner"
 import { updateDealsSchema } from "@/lib/validations/deal"
 import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
+import { deleteDealStorageFiles } from "@/lib/data/deal-photos"
+import { DealImages } from "@/lib/types/deal-image"
 
-export default function DealEditForm({ deal }: { deal: Deal }) {
+type DealWithImages = Deal & {
+  images: {
+    id: string
+    path: string
+    sort_order: number
+  }[]
+}
+interface DealEditFormProps {
+  deal: DealWithImages
+}
+
+export default function DealEditForm({ deal }: DealEditFormProps) {
+  console.log(JSON.stringify(deal.images))
+
   const router = useRouter()
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [images, setImages] = useState<DealImages[]>([])
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [formData, setFormData] = useState({
     title: deal.title,
@@ -37,6 +55,60 @@ export default function DealEditForm({ deal }: { deal: Deal }) {
       ...prevData,
       [name]: type === "checkbox" ? checked : value,
     }))
+  }
+
+  // function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+  //   const file = e.target.files?.[0]
+
+  //   if (!file) return
+
+  //   const result = validateImage(file)
+
+  //   if (!result.valid) {
+  //     toast.error(result.error)
+  //     return
+  //   }
+  //   setSelectedFile(file)
+  //   setPreviewUrl(URL.createObjectURL(file))
+  // }
+
+  async function handleDelete() {
+    setDeleteLoading(true)
+    try {
+      // get storage paths of deals image
+      const supabase = createClient()
+      const { data: dealImagesPaths } = await supabase
+        .from("deal_images")
+        .select("path")
+        .eq("deal_id", deal.id)
+
+      // Delete files from Storage
+      const paths = dealImagesPaths?.map((img) => img.path) ?? []
+      if (paths.length > 0) {
+        const { error: storageError } = await deleteDealStorageFiles(paths)
+
+        if (storageError) {
+          throw storageError
+        }
+      }
+
+      const { error: deleteDealError } = await deleteDealAPI(deal.id)
+      if (deleteDealError) throw deleteDealError
+
+      if (dealImagesPaths && dealImagesPaths.length > 0) {
+        const paths = dealImagesPaths.map((img) => img.path)
+        await deleteDealStorageFiles(paths)
+      }
+
+      toast.success("deal deleted successfully")
+      setShowConfirmDelete(false)
+      router.push("/dashboard/broker/my-deals")
+      router.refresh()
+    } catch (e: any) {
+      toast.error(e.message)
+    } finally {
+      setDeleteLoading(false)
+    }
   }
 
   async function handleSubmit(e: React.SubmitEvent) {
@@ -70,25 +142,6 @@ export default function DealEditForm({ deal }: { deal: Deal }) {
       router.refresh()
     } finally {
       setLoading(false)
-    }
-  }
-
-  async function handleDelete() {
-    setDeleteLoading(true)
-    try {
-      const { error } = await deleteDealAPI(deal.id)
-      if (error) {
-        toast.error(error.message)
-        setDeleteLoading(false)
-        setShowConfirmDelete(false)
-        return
-      }
-      toast.success("deal deleted successfully")
-      setShowConfirmDelete(false)
-      router.push("/dashboard/broker/my-deals")
-      router.refresh()
-    } finally {
-      setDeleteLoading(false)
     }
   }
 
@@ -137,6 +190,49 @@ export default function DealEditForm({ deal }: { deal: Deal }) {
                 error={errors.price}
               />
             </Field>
+
+            {/* upload image */}
+            {/* <Field>
+              <FieldLabel htmlFor="photo">Deal Images</FieldLabel>
+
+              <div className="flex flex-col gap-4">
+                <Input
+                  id="photo"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handlePhotoChange}
+                />
+
+                {previewUrls.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      {selectedFiles.length} / {MAX_DEAL_IMAGES_COUNT} images
+                      selected
+                    </p>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {previewUrls.map((url, index) => (
+                        <div
+                          key={url}
+                          className="relative aspect-square overflow-hidden rounded-lg border"
+                        >
+                          <img
+                            src={url}
+                            alt={`Deal image ${index + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1">
+                            <p className="text-xs text-white">{index + 1}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Field> */}
 
             {/* Is Private */}
             <Field className="flex-row items-center gap-2">

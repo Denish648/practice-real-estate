@@ -38,9 +38,7 @@ export default async function BuyerDashboard() {
                   src={profile.avatar_url ?? undefined}
                   alt={profile.name}
                 />
-                <AvatarFallback>
-                  {getInitials(profile.name)}
-                </AvatarFallback>
+                <AvatarFallback>{getInitials(profile.name)}</AvatarFallback>
               </Avatar>
 
               <div>
