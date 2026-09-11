@@ -69,7 +69,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ```text
 ├── app/
 │   ├── (auth)/              # Authentication routes (login, signup, reset)
-│   ├── api/                 # API handlers / client queries
+│   ├── api/                 # Browser-side Supabase mutation helpers (not route handlers)
 │   ├── dashboard/
 │   │   ├── broker/          # Broker dashboard & deal creation
 │   │   └── buyer/           # Buyer dashboard & deals browser
@@ -80,7 +80,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 │   ├── app-sidebar.tsx      # Role-aware dashboard sidebar
 │   └── ...
 ├── lib/
-│   ├── supabase/            # Supabase client, server, and middleware helpers
+│   ├── supabase/            # Supabase browser + server clients
 │   └── validations/         # Zod schemas (deals, auth)
 └── supabase/                # Database migrations & schemas
 ```

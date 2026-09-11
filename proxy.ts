@@ -43,8 +43,13 @@ export async function proxy(request: NextRequest) {
 
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route))
 
+  // the landing page and the public deal board are open to anyone, everything
+  // else still needs a session. RLS keeps private deals out of /discover.
+  const isPublicRoute =
+    pathname === "/" || pathname.startsWith("/discover") || isAuthRoute
+
   if (!user) {
-    if (!isAuthRoute) {
+    if (!isPublicRoute) {
       return NextResponse.redirect(new URL("/login", request.url))
     }
     return response
@@ -79,5 +84,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Static files in `public/` are excluded as well as `_next/*`: without this
+  // the auth gate answers image requests with a 307 to /login, and the image
+  // optimizer reports "The requested resource isn't a valid image".
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpe?g|gif|webp|avif|svg|ico)$).*)",
+  ],
 }

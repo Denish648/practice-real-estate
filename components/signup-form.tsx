@@ -12,6 +12,8 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldLegend,
+  FieldSet,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
@@ -22,7 +24,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { SignupInput, signupSchema } from "@/lib/validations/auth"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 
 export function SignupForm({
   className,
@@ -101,7 +103,7 @@ export function SignupForm({
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Create your account</CardTitle>
           <CardDescription>
-            Enter your email below to create your account
+            List your own deals, or browse what brokers have published.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -114,6 +116,7 @@ export function SignupForm({
                   id="name"
                   type="text"
                   name="name"
+                  autoComplete="name"
                   placeholder="John Doe"
                   value={data.name}
                   onChange={(e) => onChangeText(e)}
@@ -127,6 +130,7 @@ export function SignupForm({
                   id="email"
                   type="email"
                   name="email"
+                  autoComplete="email"
                   placeholder="abc@example.com"
                   value={data.email}
                   onChange={(e) => onChangeText(e)}
@@ -134,13 +138,14 @@ export function SignupForm({
                 />
               </Field>
               {/* password */}
-              <div className="w-full max-w-sm space-y-2">
+              <Field>
                 <FieldLabel htmlFor="password">Password</FieldLabel>
                 <div className="relative">
                   <Input
-                    className="bg-background"
-                    id="password-toggle"
+                    className="bg-background pr-9"
+                    id="password"
                     name="password"
+                    autoComplete="new-password"
                     value={data.password}
                     onChange={(e) => onChangeText(e)}
                     placeholder="Enter your password"
@@ -148,53 +153,63 @@ export function SignupForm({
                     error={errors.password}
                   />
                   <Button
-                    className="absolute top-0 right-0 px-3 hover:bg-transparent"
+                    className="absolute top-0 right-0 hover:bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                     size="icon"
                     type="button"
                     variant="ghost"
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      <EyeOff className="text-muted-foreground" />
                     ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
+                      <Eye className="text-muted-foreground" />
                     )}
                   </Button>
                 </div>
-              </div>
+                <FieldDescription>
+                  At least 6 characters, with a number and a special character.
+                </FieldDescription>
+              </Field>
               {/* company */}
               <Field>
-                <FieldLabel htmlFor="email">Company</FieldLabel>
+                <FieldLabel htmlFor="company">Company</FieldLabel>
                 <Input
                   id="company"
                   type="text"
                   name="company"
-                  placeholder="company name"
+                  autoComplete="organization"
+                  placeholder="Acme Realty"
                   value={data.company}
                   onChange={(e) => onChangeText(e)}
                   error={errors.company}
                 />
               </Field>
               {/* role */}
-              <RadioGroup
-                defaultValue="broker"
-                value={data.role}
-                onValueChange={(value) => {
-                  setData((prev) => ({
-                    ...prev,
-                    role: value as SignupInput["role"],
-                  }))
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <RadioGroupItem value="broker" id="broker" />
-                  <Label htmlFor="broker">Broker</Label>
-                </div>
-                <div className="flex items-center gap-3">
-                  <RadioGroupItem value="buyer" id="buyer" />
-                  <Label htmlFor="buyer">Buyer</Label>
-                </div>
-              </RadioGroup>
+              <FieldSet>
+                <FieldLegend variant="label">I am a</FieldLegend>
+                <RadioGroup
+                  className="flex flex-row gap-6"
+                  value={data.role}
+                  onValueChange={(value) => {
+                    setData((prev) => ({
+                      ...prev,
+                      role: value as SignupInput["role"],
+                    }))
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="broker" id="broker" />
+                    <Label htmlFor="broker">Broker</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="buyer" id="buyer" />
+                    <Label htmlFor="buyer">Buyer</Label>
+                  </div>
+                </RadioGroup>
+              </FieldSet>
               {/* phone */}
               <Field>
                 <FieldLabel htmlFor="phone">Phone</FieldLabel>
@@ -203,6 +218,7 @@ export function SignupForm({
                   type="tel"
                   maxLength={10}
                   name="phone"
+                  autoComplete="tel"
                   placeholder="1234567890"
                   value={data.phone}
                   onChange={(e) => onChangeText(e)}
@@ -211,10 +227,17 @@ export function SignupForm({
               </Field>
               <Field>
                 <Button type="submit" disabled={loading}>
-                  {loading ? "creating acoount..." : "Create Account"}
+                  {loading && <Loader2 className="animate-spin" />}
+                  {loading ? "Creating account..." : "Create account"}
                 </Button>
                 <FieldDescription className="text-center">
-                  Already have an account? <Link href="/login">login</Link>
+                  Already have an account?{" "}
+                  <Link
+                    href="/login"
+                    className="text-foreground underline underline-offset-4"
+                  >
+                    Log in
+                  </Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
@@ -222,8 +245,21 @@ export function SignupForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our{" "}
+        <a
+          href="#"
+          className="underline underline-offset-4 hover:text-foreground"
+        >
+          Terms of Service
+        </a>{" "}
+        and{" "}
+        <a
+          href="#"
+          className="underline underline-offset-4 hover:text-foreground"
+        >
+          Privacy Policy
+        </a>
+        .
       </FieldDescription>
     </div>
   )

@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-heading: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -24,6 +24,8 @@
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
@@ -39,6 +41,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -48,77 +52,94 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Matches the landing page: near-black type and buttons on white, the same
+   faintly green off-white (#eff2ec) for panels, and the green Sign In pill
+   kept as --brand for focus rings and status accents. */
 :root {
   --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --foreground: oklch(0.21 0.005 145);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.21 0.005 145);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --popover-foreground: oklch(0.21 0.005 145);
+  --primary: oklch(0.21 0.005 145);
+  --primary-foreground: oklch(0.985 0.002 145);
+  --secondary: oklch(0.958 0.009 140);
+  --secondary-foreground: oklch(0.29 0.012 145);
+  --muted: oklch(0.966 0.007 140);
+  --muted-foreground: oklch(0.52 0.012 145);
+  --accent: oklch(0.945 0.016 145);
+  --accent-foreground: oklch(0.27 0.03 150);
+  --destructive: oklch(0.505 0.19 25);
+  --border: oklch(0.918 0.006 140);
+  --input: oklch(0.9 0.008 140);
+  --ring: oklch(0.58 0.13 150);
+  --brand: oklch(0.59 0.15 150);
+  --brand-foreground: oklch(0.985 0.002 145);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.966 0.009 140);
+  --sidebar-foreground: oklch(0.27 0.008 145);
+  --sidebar-primary: oklch(0.21 0.005 145);
+  --sidebar-primary-foreground: oklch(0.985 0.002 145);
+  --sidebar-accent: oklch(0.925 0.018 145);
+  --sidebar-accent-foreground: oklch(0.24 0.025 150);
+  --sidebar-border: oklch(0.908 0.008 140);
+  --sidebar-ring: oklch(0.58 0.13 150);
 }
 
-main {
-  width: 100%;
-}
-
+/* The landing page is light-only; dark mode is the same palette inverted, with
+   the near-black primary swapped for an off-white one so buttons stay legible. */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  --background: oklch(0.175 0.006 145);
+  --foreground: oklch(0.968 0.004 145);
+  --card: oklch(0.215 0.007 145);
+  --card-foreground: oklch(0.968 0.004 145);
+  --popover: oklch(0.215 0.007 145);
+  --popover-foreground: oklch(0.968 0.004 145);
+  --primary: oklch(0.94 0.012 145);
+  --primary-foreground: oklch(0.2 0.008 145);
+  --secondary: oklch(0.27 0.009 145);
+  --secondary-foreground: oklch(0.968 0.004 145);
+  --muted: oklch(0.27 0.009 145);
+  --muted-foreground: oklch(0.72 0.012 145);
+  --accent: oklch(0.3 0.018 150);
+  --accent-foreground: oklch(0.96 0.005 145);
+  --destructive: oklch(0.7 0.17 25);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --ring: oklch(0.62 0.13 150);
+  --brand: oklch(0.72 0.14 150);
+  --brand-foreground: oklch(0.18 0.02 150);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar: oklch(0.2 0.007 145);
+  --sidebar-foreground: oklch(0.95 0.004 145);
+  --sidebar-primary: oklch(0.94 0.012 145);
+  --sidebar-primary-foreground: oklch(0.2 0.008 145);
+  --sidebar-accent: oklch(0.3 0.02 150);
+  --sidebar-accent-foreground: oklch(0.94 0.01 145);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: oklch(0.62 0.13 150);
+}
+
+/* Contained feeds scroll normally — wheel, trackpad, touch and keyboard — but
+   without painting a scrollbar over the cards. A fade at the bottom of the
+   container is what tells the reader there is more below. */
+@utility scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {
@@ -129,6 +150,6 @@ main {
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-sans;
+    @apply font-sans scroll-smooth;
   }
 }

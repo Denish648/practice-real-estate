@@ -3,7 +3,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -13,8 +12,8 @@ import { Separator } from "@/components/ui/separator"
 import { getDealImagesWithSignedUrls } from "@/lib/data/deal-images"
 import { getDealById } from "@/lib/data/deals"
 import { getUser } from "@/lib/data/user"
-import { formatPrice, getInitials } from "@/lib/utils/format"
-import { ArrowLeft, Building2, MapPin } from "lucide-react"
+import { formatINRPrice, getInitials } from "@/lib/utils/format"
+import { ArrowLeft, Building2, ImageOff, MapPin, Phone } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -42,92 +41,124 @@ export default async function BuyerDealDetail({
     deal.is_private,
   )
 
+  const [coverImage, ...otherImages] = images
+
   return (
-    <div className="flex flex-col gap-8 p-5 max-w-3xl">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
       <div>
-        <Button variant="ghost" size="sm" asChild className="gap-2">
+        <Button variant="ghost" size="sm" asChild>
           <Link href="/dashboard/buyer/browse-deals">
-            <ArrowLeft className="size-4" /> Back to Browse Deals
+            <ArrowLeft />
+            Back to Browse Deals
           </Link>
         </Button>
       </div>
 
-      <div className="flex flex-col gap-6">
-        {/* deal images */}
-        {deal.images.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {images.map((img) => (
-              <div
-                key={img.id}
-                className="relative aspect-video rounded-lg overflow-hidden border"
-              >
-                <Image
-                  src={img.signedUrl}
-                  alt={deal.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  priority
-                />
-              </div>
-            ))}
-          </div>
-        )}
+      {/* deal header */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-medium tracking-tight sm:text-4xl">
+            {deal.title}
+          </h1>
+          <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <MapPin className="size-4" />
+            {deal.city}
+          </p>
+        </div>
 
-        {/* Deal Header Card */}
+        <p className="text-2xl font-semibold tabular-nums">
+          {formatINRPrice(deal.price)}
+        </p>
+      </div>
+
+      {/* deal images */}
+      {coverImage ? (
+        <div className="flex flex-col gap-3">
+          <div className="relative aspect-video overflow-hidden rounded-xl border">
+            <Image
+              src={coverImage.signedUrl}
+              alt={`${deal.title} — photo 1`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 768px"
+              priority
+            />
+          </div>
+
+          {otherImages.length > 0 && (
+            <div className="grid grid-cols-3 gap-3">
+              {otherImages.map((img, index) => (
+                <div
+                  key={img.id}
+                  className="relative aspect-[4/3] overflow-hidden rounded-lg border"
+                >
+                  <Image
+                    src={img.signedUrl}
+                    alt={`${deal.title} — photo ${index + 2}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 33vw, 250px"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="flex aspect-video flex-col items-center justify-center gap-2 rounded-xl border border-dashed text-muted-foreground">
+          <ImageOff className="size-6" />
+          <p className="text-sm">No photos for this listing</p>
+        </div>
+      )}
+
+      {/* broker contact */}
+      {broker && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">{deal.title}</CardTitle>
-            <CardDescription className="flex items-center gap-1 text-sm">
-              <MapPin className="size-4" /> {deal.city}
-            </CardDescription>
-            <CardAction>
-              <Badge variant="default">Public Deal</Badge>
-            </CardAction>
+            <div className="flex items-center gap-3">
+              <Avatar className="size-11">
+                <AvatarImage
+                  src={broker.avatar_url ?? undefined}
+                  alt={broker.name}
+                />
+                <AvatarFallback>{getInitials(broker.name)}</AvatarFallback>
+              </Avatar>
+
+              <div className="min-w-0">
+                <CardTitle className="truncate">{broker.name}</CardTitle>
+                <CardDescription className="flex items-center gap-1.5 truncate">
+                  <Building2 className="size-3.5" />
+                  {broker.company}
+                </CardDescription>
+              </div>
+
+              <Badge variant="outline" className="ml-auto">
+                Broker
+              </Badge>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-primary">
-              {formatPrice(deal.price)}
+
+          <CardContent className="space-y-4">
+            <Separator />
+
+            <div className="flex items-center gap-2 text-sm">
+              <Phone className="size-4 text-muted-foreground" />
+              {broker.phone ? (
+                <a
+                  href={`tel:${broker.phone}`}
+                  className="font-medium underline-offset-4 hover:underline"
+                >
+                  {broker.phone}
+                </a>
+              ) : (
+                <span className="text-muted-foreground">
+                  Phone not provided
+                </span>
+              )}
             </div>
           </CardContent>
         </Card>
-
-        {/* Broker Information Card */}
-        {broker && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-4">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage
-                    src={broker.avatar_url ?? undefined}
-                    alt={broker.name}
-                  />
-                  <AvatarFallback>{getInitials(broker.name)}</AvatarFallback>
-                </Avatar>
-
-                <div>
-                  <CardTitle>{broker.name}</CardTitle>
-                  <CardDescription className="flex items-center gap-1">
-                    <Building2 className="size-3.5" /> {broker.company}
-                  </CardDescription>
-                </div>
-
-                <Badge variant="outline" className="ml-auto">
-                  Broker
-                </Badge>
-              </div>
-            </CardHeader>
-
-            <CardContent>
-              <Separator className="mb-4" />
-              <div className="text-sm">
-                <p className="text-muted-foreground">Phone</p>
-                <p className="font-medium">{broker.phone || "Not provided"}</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      )}
     </div>
   )
 }

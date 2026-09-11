@@ -1,86 +1,90 @@
+import Link from "next/link"
+import { Building2, IndianRupee, MapPin, Users } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { getDeals } from "@/lib/data/deals"
-import { getProfile } from "@/lib/data/profile"
-import { formatPrice, getInitials } from "@/lib/utils/format"
+import { StatCard } from "@/components/stat-card"
+import { BuyerBoard, type FeedBroker } from "@/components/buyer-board"
+import { getPublicDeals } from "@/lib/data/deals"
+import { getDealCoverImages } from "@/lib/data/deal-images"
+import { getBrokers, getProfile } from "@/lib/data/profile"
+import { toFeedDeals } from "@/lib/utils/deal-feed"
+import { formatINRPrice, getInitials } from "@/lib/utils/format"
 
 export default async function BuyerDashboard() {
   const { profileData: profile, error: profileError } = await getProfile()
   if (profileError) throw profileError
   if (!profile) throw new Error("Profile not found")
 
-  const { data: deals, error: dealsError } = await getDeals()
+  const { data: deals, error: dealsError } = await getPublicDeals()
   if (dealsError) throw dealsError
   if (!deals) throw new Error("Deals not found")
 
-  const totalPrice = deals.reduce((total, deal) => {
-    return total + deal.price
-  }, 0)
+  const { brokers, error: brokersError } = await getBrokers()
+  if (brokersError) throw brokersError
+
+  const { covers } = await getDealCoverImages(deals.map((deal) => deal.id))
+
+  const totalPrice = deals.reduce((total, deal) => total + deal.price, 0)
+  const cities = new Set(deals.map((deal) => deal.city)).size
+
+  const feedDeals = toFeedDeals(deals, covers)
+
+  const feedBrokers: FeedBroker[] = (brokers ?? []).map((broker) => ({
+    ...broker,
+    dealCount: deals.filter((deal) => deal.broker_id === broker.id).length,
+  }))
 
   return (
-    <>
-      <div className="flex flex-col gap-10 p-5">
-        <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
-        {/* profile */}
-        <Card className="w-full sm:w-2/3 md:w-1/2 lg:w-1/3">
-          <CardHeader>
-            <div className="flex items-center gap-4">
-              <Avatar className="h-12 w-12">
-                <AvatarImage
-                  src={profile.avatar_url ?? undefined}
-                  alt={profile.name}
-                />
-                <AvatarFallback>{getInitials(profile.name)}</AvatarFallback>
-              </Avatar>
-
-              <div>
-                <CardTitle>{profile.name}</CardTitle>
-                <CardDescription>{profile.company}</CardDescription>
-              </div>
-
-              <Badge className="ml-auto">{profile.role}</Badge>
-            </div>
-          </CardHeader>
-
-          <CardContent>
-            <Separator className="mb-4" />
-
-            <div className="text-sm">
-              <p className="text-muted-foreground">Phone</p>
-              <p>{profile.phone}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* stats */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader>
-              <CardDescription>Total Deals (Only Public Deals)</CardDescription>
-              <CardTitle className="text-2xl font-semibold">
-                {deals.length}
-              </CardTitle>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardDescription>Total Price</CardDescription>
-              <CardTitle className="text-2xl">
-                {formatPrice(totalPrice)}
-              </CardTitle>
-            </CardHeader>
-          </Card>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-medium tracking-tight sm:text-4xl">
+            Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Listings currently available to you, and the brokers behind them.
+          </p>
         </div>
+
+        <Link
+          href="/dashboard/profile"
+          className="flex items-center gap-3 rounded-full bg-secondary py-1.5 pr-4 pl-1.5 transition-colors hover:bg-accent"
+        >
+          <Avatar className="size-8">
+            <AvatarImage
+              src={profile.avatar_url ?? undefined}
+              alt={profile.name}
+            />
+            <AvatarFallback>{getInitials(profile.name)}</AvatarFallback>
+          </Avatar>
+          <span className="text-sm font-medium">{profile.name}</span>
+          <Badge variant="outline" className="capitalize">
+            {profile.role}
+          </Badge>
+        </Link>
       </div>
-    </>
+
+      {/* stats */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Available deals"
+          value={deals.length}
+          icon={<Building2 />}
+        />
+        <StatCard label="Cities" value={cities} icon={<MapPin />} />
+        <StatCard
+          label="Brokers listing"
+          value={(brokers ?? []).length}
+          icon={<Users />}
+        />
+        <StatCard
+          label="Total value"
+          value={formatINRPrice(totalPrice)}
+          icon={<IndianRupee />}
+        />
+      </div>
+
+      <BuyerBoard deals={feedDeals} brokers={feedBrokers} />
+    </div>
   )
 }

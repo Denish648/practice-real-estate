@@ -27,3 +27,27 @@ export async function getProfile() {
     return { profileData: null, error: new Error("Something went wrong") }
   }
 }
+
+/**
+ * Every broker profile, for the "Discover brokers" rail on the buyer dashboard.
+ * RLS exposes `role = 'broker'` rows to any signed-in user (and, since
+ * `anon_can_view_broker_profiles`, to anonymous visitors too).
+ */
+export async function getBrokers() {
+  try {
+    const supabase = await createClient()
+
+    const { data: brokers, error } = await supabase
+      .from("profiles")
+      .select("id, name, company, phone, avatar_url")
+      .eq("role", "broker")
+      .order("name", { ascending: true })
+
+    return { brokers, error }
+  } catch (e) {
+    return {
+      brokers: null,
+      error: e instanceof Error ? e : new Error("Failed to load brokers"),
+    }
+  }
+}

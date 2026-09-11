@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card"
-import { Field, FieldLabel } from "./ui/field"
+import { Field, FieldDescription, FieldLabel } from "./ui/field"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Button } from "./ui/button"
@@ -26,6 +26,7 @@ import { createClient } from "@/lib/supabase/client"
 import { deleteDealStorageFiles, uploadDealPhoto } from "@/lib/data/deal-photos"
 import { MAX_DEAL_IMAGES_COUNT, validateImage } from "@/lib/validations/image"
 import { Loader2, Trash2, X } from "lucide-react"
+import { formatINRPrice } from "@/lib/utils/format"
 
 type DealEditFormProps = {
   deal: Deal
@@ -52,6 +53,8 @@ export default function DealEditForm({
     price: deal.price,
     is_private: deal.is_private,
   })
+
+  const imageCount = existingImages.length + selectedFiles.length
 
   function onChangeText(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value, type, checked } = e.target
@@ -253,14 +256,17 @@ export default function DealEditForm({
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Deal</CardTitle>
-          <CardDescription>Update details or delete this deal</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            {/* Title */}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        {/* Deal details */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Details</CardTitle>
+            <CardDescription>
+              The information buyers see on this listing.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="flex flex-col gap-5">
             <Field>
               <FieldLabel htmlFor="title">Title</FieldLabel>
               <Input
@@ -272,7 +278,6 @@ export default function DealEditForm({
               />
             </Field>
 
-            {/* City */}
             <Field>
               <FieldLabel htmlFor="city">City</FieldLabel>
               <Input
@@ -284,141 +289,146 @@ export default function DealEditForm({
               />
             </Field>
 
-            {/* Price */}
             <Field>
               <FieldLabel htmlFor="price">Price (₹)</FieldLabel>
               <Input
                 id="price"
                 type="number"
                 name="price"
+                min={0}
                 value={formData.price}
                 onChange={onChangeText}
                 error={errors.price}
               />
+              <FieldDescription>
+                {formData.price > 0
+                  ? `Shown to buyers as ${formatINRPrice(formData.price)}.`
+                  : "Enter the amount in rupees — 12500000 shows as ₹1.25 Cr."}
+              </FieldDescription>
             </Field>
 
-            {/* Deal Images */}
-            <Field>
-              <FieldLabel htmlFor="photo">Deal Images</FieldLabel>
-
-              <div className="flex flex-col gap-4">
-                <Input
-                  id="photo"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  disabled={
-                    existingImages.length + selectedFiles.length >=
-                    MAX_DEAL_IMAGES_COUNT
-                  }
-                  onChange={handlePhotoChange}
-                />
-
-                {(existingImages.length > 0 || previewUrls.length > 0) && (
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground">
-                      {existingImages.length + selectedFiles.length} /{" "}
-                      {MAX_DEAL_IMAGES_COUNT} images
-                    </p>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {/* Existing Images */}
-                      {existingImages.map((img, index) => (
-                        <div
-                          key={img.id}
-                          className="relative aspect-square overflow-hidden rounded-lg border"
-                        >
-                          <img
-                            src={img.signedUrl}
-                            alt={`Deal image ${index + 1}`}
-                            className="h-full w-full object-cover"
-                          />
-
-                          <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1 flex items-center justify-between">
-                            <span className="text-xs text-white">
-                              #{index + 1}
-                            </span>
-                            <button
-                              type="button"
-                              disabled={deletingImageId === img.id}
-                              onClick={() => handleDeleteExistingImage(img)}
-                              className="text-white hover:text-red-400 p-1 rounded transition-colors disabled:opacity-50 cursor-pointer"
-                              title="Delete image"
-                            >
-                              {deletingImageId === img.id ? (
-                                <Loader2 className="size-3.5 animate-spin" />
-                              ) : (
-                                <Trash2 className="size-3.5" />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-
-                      {/* New Images */}
-                      {previewUrls.map((url, index) => (
-                        <div
-                          key={url}
-                          className="relative aspect-square overflow-hidden rounded-lg border border-dashed border-primary"
-                        >
-                          <img
-                            src={url}
-                            alt={`New image ${index + 1}`}
-                            className="h-full w-full object-cover"
-                          />
-
-                          <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1 flex items-center justify-between">
-                            <span className="text-xs text-white">
-                              #{existingImages.length + index + 1} (new)
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveNewPhoto(index)}
-                              className="text-white hover:text-red-400 p-1 rounded transition-colors cursor-pointer"
-                              title="Remove image"
-                            >
-                              <X className="size-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </Field>
-
-            {/* Is Private */}
-            <Field className="flex-row items-center gap-2">
+            <Field orientation="horizontal">
               <input
                 type="checkbox"
                 id="is_private"
                 name="is_private"
                 checked={formData.is_private}
                 onChange={onChangeText}
-                className="cursor-pointer !w-max"
+                className="size-4 shrink-0 cursor-pointer accent-primary"
               />
-              <Label htmlFor="is_private">
-                Private Deal (only visible to you)
+              <Label htmlFor="is_private" className="cursor-pointer">
+                Private deal, only visible to you
               </Label>
             </Field>
+          </CardContent>
+        </Card>
 
-            <div className="flex items-center justify-between pt-4">
-              <Button type="submit" disabled={loading}>
-                {loading ? "Updating..." : "Update Deal"}
-              </Button>
+        {/* Deal photos */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Photos</CardTitle>
+            <CardDescription>
+              {imageCount} of {MAX_DEAL_IMAGES_COUNT} images used.
+            </CardDescription>
+          </CardHeader>
 
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => setShowConfirmDelete(true)}
-              >
-                Delete Deal
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+          <CardContent className="flex flex-col gap-4">
+            <Field>
+              <FieldLabel htmlFor="photo">Add images</FieldLabel>
+              <Input
+                id="photo"
+                type="file"
+                accept="image/*"
+                multiple
+                disabled={imageCount >= MAX_DEAL_IMAGES_COUNT}
+                onChange={handlePhotoChange}
+              />
+              <FieldDescription>
+                Up to 5MB each. New images are uploaded when you save.
+              </FieldDescription>
+            </Field>
+
+            {imageCount > 0 && (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {/* Existing Images */}
+                {existingImages.map((img, index) => (
+                  <div
+                    key={img.id}
+                    className="relative aspect-square overflow-hidden rounded-lg border"
+                  >
+                    <img
+                      src={img.signedUrl}
+                      alt={`Deal image ${index + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+
+                    <span className="absolute bottom-1.5 left-1.5 rounded bg-background/90 px-1.5 py-0.5 text-xs font-medium">
+                      #{index + 1}
+                    </span>
+
+                    <button
+                      type="button"
+                      disabled={deletingImageId === img.id}
+                      onClick={() => handleDeleteExistingImage(img)}
+                      className="absolute top-1.5 right-1.5 flex size-6 cursor-pointer items-center justify-center rounded-md bg-background/90 text-muted-foreground transition-colors hover:text-destructive disabled:opacity-50"
+                      aria-label={`Delete image ${index + 1}`}
+                    >
+                      {deletingImageId === img.id ? (
+                        <Loader2 className="size-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="size-3.5" />
+                      )}
+                    </button>
+                  </div>
+                ))}
+
+                {/* New Images */}
+                {previewUrls.map((url, index) => (
+                  <div
+                    key={url}
+                    className="relative aspect-square overflow-hidden rounded-lg border border-dashed border-primary"
+                  >
+                    <img
+                      src={url}
+                      alt={`New image ${index + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+
+                    <span className="absolute bottom-1.5 left-1.5 rounded bg-background/90 px-1.5 py-0.5 text-xs font-medium text-primary">
+                      New
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveNewPhoto(index)}
+                      className="absolute top-1.5 right-1.5 flex size-6 cursor-pointer items-center justify-center rounded-md bg-background/90 text-muted-foreground transition-colors hover:text-destructive"
+                      aria-label={`Remove new image ${index + 1}`}
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Button type="submit" disabled={loading}>
+            {loading && <Loader2 className="animate-spin" />}
+            {loading ? "Saving..." : "Save changes"}
+          </Button>
+
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={() => setShowConfirmDelete(true)}
+          >
+            <Trash2 />
+            Delete deal
+          </Button>
+        </div>
+      </form>
 
       {/* Confirmation Modal */}
       <ConfirmDialog

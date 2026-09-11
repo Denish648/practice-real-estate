@@ -15,7 +15,13 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { createClient } from "@/lib/supabase/client"
-import { EllipsisVerticalIcon, LogOutIcon } from "lucide-react"
+import {
+  EllipsisVerticalIcon,
+  KeyRound,
+  LogOutIcon,
+  UserRound,
+} from "lucide-react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { getInitials } from "@/lib/utils/format"
@@ -32,9 +38,9 @@ export function NavUser({
   const { isMobile } = useSidebar()
   const router = useRouter()
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     const supabase = createClient()
-    supabase.auth.signOut()
+    await supabase.auth.signOut()
     router.push("/login")
     router.refresh()
   }
@@ -71,6 +77,12 @@ export function NavUser({
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarFallback className="rounded-lg">
+                    {getInitials(user.name)}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
                   <span className="truncate text-xs text-muted-foreground">
@@ -80,7 +92,20 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
+            <DropdownMenuItem asChild>
+              <Link href="/dashboard/profile">
+                <UserRound />
+                Profile
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/change-password">
+                <KeyRound />
+                Change password
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
               <LogOutIcon />
               Log out
             </DropdownMenuItem>

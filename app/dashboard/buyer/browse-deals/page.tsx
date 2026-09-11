@@ -1,78 +1,50 @@
-import { Badge } from "@/components/ui/badge"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { formatPrice } from "@/lib/utils/format"
-import { getDeals } from "@/lib/data/deals"
-import { getUser } from "@/lib/data/user"
 import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
+import { BrowseDealsFeed } from "@/components/browse-deals-feed"
+import { getPublicDeals } from "@/lib/data/deals"
+import { getDealCoverImages } from "@/lib/data/deal-images"
+import { getUser } from "@/lib/data/user"
+import { toFeedDeals } from "@/lib/utils/deal-feed"
 
 export default async function BrowseDeals() {
   const { user, error: userError } = await getUser()
   if (userError) throw userError
   if (!user) throw new Error("Unauthorized")
 
-  const { data: deals, error: dealsError } = await getDeals()
+  const { data: deals, error: dealsError } = await getPublicDeals()
   if (dealsError) throw dealsError
   if (!deals) throw new Error("Deals not found")
 
+  const { covers } = await getDealCoverImages(deals.map((deal) => deal.id))
+  const feedDeals = toFeedDeals(deals, covers)
+
+  const cities = new Set(deals.map((deal) => deal.city)).size
+
   return (
-    <>
-      <div className="flex flex-col gap-10 p-5">
-        <h1 className="text-3xl font-semibold tracking-tight">Browse Deals</h1>
+    <div className="flex flex-col gap-6">
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-3">
+        <Link
+          href="/dashboard/buyer"
+          className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
+          Back to dashboard
+        </Link>
 
-        <div className="rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-200">
-                <TableHead>Deal</TableHead>
-                <TableHead>City</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Visibility</TableHead>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {deals.length > 0 ? (
-                deals.map((deal) => {
-                  const { id, title, city, price, is_private } = deal
-
-                  return (
-                    <TableRow key={`key-${id}`} className="hover:bg-muted/50">
-                      <TableCell className="font-medium">
-                        <Link
-                          href={`/dashboard/buyer/deals/${id}`}
-                          className="text-primary underline-offset-4 hover:underline"
-                        >
-                          {title}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{city}</TableCell>
-                      <TableCell>{formatPrice(price)}</TableCell>
-                      <TableCell>
-                        <Badge variant={is_private ? "secondary" : "default"}>
-                          {is_private ? "Private" : "Public"}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
-                    No Deals Found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+        <div className="space-y-1">
+          <h1 className="text-3xl font-medium tracking-tight sm:text-4xl">
+            Browse Deals
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Every listing on the board — {deals.length}{" "}
+            {deals.length === 1 ? "property" : "properties"} across {cities}{" "}
+            {cities === 1 ? "city" : "cities"}. Open one to see the full photo
+            set and the broker behind it.
+          </p>
         </div>
       </div>
-    </>
+
+      <BrowseDealsFeed deals={feedDeals} />
+    </div>
   )
 }

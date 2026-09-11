@@ -21,7 +21,7 @@ import { useState } from "react"
 import { LoginAPI } from "@/app/api/(auth)/login"
 import { LoginInput, loginSchema } from "@/lib/validations/auth"
 import { toast } from "sonner"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 
 export function LoginForm({
   className,
@@ -85,7 +85,7 @@ export function LoginForm({
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>Login</CardDescription>
+          <CardDescription>Sign in to manage and browse deals.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={(e) => handleSubmit(e)}>
@@ -96,27 +96,30 @@ export function LoginForm({
                   id="email"
                   type="email"
                   name="email"
+                  autoComplete="email"
                   value={data.email}
                   placeholder="abc@example.com"
                   onChange={(e) => onChangeText(e)}
                   error={errors.email}
                 />
               </Field>
-              <div className="w-full max-w-sm space-y-2">
+
+              <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                   <Link
                     href="/forgot-password"
-                    className="ml-auto text-sm underline-offset-4 hover:underline"
+                    className="ml-auto text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
                   >
                     Forgot your password?
                   </Link>
                 </div>
                 <div className="relative">
                   <Input
-                    className="bg-background"
-                    id="password-toggle"
+                    className="bg-background pr-9"
+                    id="password"
                     name="password"
+                    autoComplete="current-password"
                     value={data.password}
                     onChange={(e) => onChangeText(e)}
                     placeholder="Enter your password"
@@ -124,27 +127,37 @@ export function LoginForm({
                     type={showPassword ? "text" : "password"}
                   />
                   <Button
-                    className="absolute top-0 right-0 px-3 hover:bg-transparent"
+                    className="absolute top-0 right-0 hover:bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                     size="icon"
                     type="button"
                     variant="ghost"
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      <EyeOff className="text-muted-foreground" />
                     ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
+                      <Eye className="text-muted-foreground" />
                     )}
                   </Button>
                 </div>
-              </div>
+              </Field>
+
               <Field>
                 <Button type="submit" disabled={loading}>
-                  {loading ? "logging..." : "Login"}
+                  {loading && <Loader2 className="animate-spin" />}
+                  {loading ? "Signing in..." : "Sign in"}
                 </Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account?
-                  <Link href="/signup">Sign up</Link>
+                  Don&apos;t have an account?{" "}
+                  <Link
+                    href="/signup"
+                    className="text-foreground underline underline-offset-4"
+                  >
+                    Sign up
+                  </Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
@@ -152,8 +165,21 @@ export function LoginForm({
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our{" "}
+        <a
+          href="#"
+          className="underline underline-offset-4 hover:text-foreground"
+        >
+          Terms of Service
+        </a>{" "}
+        and{" "}
+        <a
+          href="#"
+          className="underline underline-offset-4 hover:text-foreground"
+        >
+          Privacy Policy
+        </a>
+        .
       </FieldDescription>
     </div>
   )
