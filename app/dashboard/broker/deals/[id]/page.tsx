@@ -1,6 +1,7 @@
 import DealEditForm from "@/components/deal-edit-form"
 import { Button } from "@/components/ui/button"
 import { getDealById } from "@/lib/data/deals"
+import { getDealImagesWithSignedUrls } from "@/lib/data/deal-images"
 import { getUser } from "@/lib/data/user"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -19,6 +20,12 @@ export default async function BrokerDealDetail({
   const { data: deal, error } = await getDealById(id)
   if (error || !deal || deal.broker_id !== user.id) notFound()
 
+  const { images } = await getDealImagesWithSignedUrls(
+    deal.id,
+    deal.broker_id,
+    deal.is_private,
+  )
+
   return (
     <div className="flex flex-col gap-8 p-5 max-w-2xl">
       <div>
@@ -29,7 +36,7 @@ export default async function BrokerDealDetail({
         </Button>
       </div>
 
-      <DealEditForm deal={deal} />
+      <DealEditForm deal={deal} initialImages={images} />
     </div>
   )
 }

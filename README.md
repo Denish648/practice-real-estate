@@ -94,3 +94,44 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `bun run start` - Runs the production build
 - `bun run lint` - Runs ESLint checks
 - `bun run format` - Formats codebase with Prettier
+
+---
+
+## Security Verification & Tests
+
+### Final Security Tests (Stage 3 - Deal Photos)
+
+1. **Test 1: Buyer Cannot Directly Access a Private Deal Image**
+   - **Vector:** Direct HTTP access or Supabase Storage download for an image path in the private `deal-images` bucket belonging to a private deal (`is_private = true`).
+   - **Enforcement:** Enforced at the storage layer via PostgreSQL Row Level Security (RLS) on `storage.objects`:
+     ```sql
+     create policy "users can view accessbile deal image"
+     on storage.objects
+     for select
+     to authenticated
+     using (
+       bucket_id = 'deal-images'
+       and exists (
+         select 1 from public.deals
+         where (storage.foldername(name))[2] = deals.id::text
+         and (deals.is_private = false or deals.broker_id = auth.uid())
+       )
+     );
+     ```
+   - **Result:** **PASSED**. A buyer or unauthorized user attempting to access or download a private deal's photo receives a `403 Forbidden` / RLS denial.
+
+2. **Test 2: Buyer Cannot Generate a Signed URL for a Private Deal Image**
+   - **Vector:** Requesting signed URLs or querying records from `deal_images` as a buyer for a private deal.
+   - **Enforcement:**
+     - The `deal_images` table RLS policy `views images of accessible deals` filters out rows where `is_private = true` unless `broker_id = auth.uid()`.
+     - Server-side access check in `lib/data/deal-images.ts` explicitly verifies ownership before calling `createSignedUrl`:
+       ```typescript
+       if (isPrivate && (!user || user.id !== brokerId)) {
+         return {
+           images: [],
+           error: new Error("not allowed to access private deal images"),
+         }
+       }
+       ```
+     - Buyer deal page (`app/dashboard/buyer/deals/[id]/page.tsx`) immediately aborts with `notFound()` if `deal.is_private` is true.
+   - **Result:** **PASSED**. Buyers cannot query private image paths or generate signed URLs for private deals.

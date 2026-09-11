@@ -4,7 +4,6 @@ export async function uploadAvatar(file: File, userId: string) {
   const supabase = createClient()
 
   const extension = file.name.split(".").pop()
-
   const fileName = `${crypto.randomUUID()}.${extension}`
   const filePath = `${userId}/${fileName}`
 

@@ -10,10 +10,12 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { getDealImagesWithSignedUrls } from "@/lib/data/deal-images"
 import { getDealById } from "@/lib/data/deals"
 import { getUser } from "@/lib/data/user"
 import { formatPrice, getInitials } from "@/lib/utils/format"
 import { ArrowLeft, Building2, MapPin } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
@@ -34,6 +36,12 @@ export default async function BuyerDealDetail({
 
   const broker = deal.broker
 
+  const { images } = await getDealImagesWithSignedUrls(
+    deal.id,
+    deal.broker_id,
+    deal.is_private,
+  )
+
   return (
     <div className="flex flex-col gap-8 p-5 max-w-3xl">
       <div>
@@ -45,6 +53,27 @@ export default async function BuyerDealDetail({
       </div>
 
       <div className="flex flex-col gap-6">
+        {/* deal images */}
+        {deal.images.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {images.map((img) => (
+              <div
+                key={img.id}
+                className="relative aspect-video rounded-lg overflow-hidden border"
+              >
+                <Image
+                  src={img.signedUrl}
+                  alt={deal.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  priority
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Deal Header Card */}
         <Card>
           <CardHeader>
