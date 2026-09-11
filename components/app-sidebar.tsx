@@ -34,6 +34,11 @@ const brokerData = [
     url: "/dashboard/broker/create-deal",
     icon: <PlusCircle />,
   },
+  {
+    title: "Profile",
+    url: "/dashboard/profile",
+    icon: <PlusCircle />,
+  },
 ]
 
 const buyerData = [
@@ -46,6 +51,11 @@ const buyerData = [
     title: "Browse Deals",
     url: "/dashboard/buyer/browse-deals",
     icon: <Building2 />,
+  },
+  {
+    title: "Profile",
+    url: "/dashboard/profile",
+    icon: <PlusCircle />,
   },
 ]
 
@@ -85,6 +95,7 @@ export async function AppSidebar({
           user={{
             name: profile.name,
             email: user.email ?? "",
+            avatar: profile.avatar_url ?? "",
           }}
         />
       </SidebarFooter>

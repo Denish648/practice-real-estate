@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -10,7 +10,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { getDeals } from "@/lib/data/deals"
 import { getProfile } from "@/lib/data/profile"
-import { formatPrice } from "@/lib/utils/format"
+import { formatPrice, getInitials } from "@/lib/utils/format"
 
 export default async function BuyerDashboard() {
   const { profileData: profile, error: profileError } = await getProfile()
@@ -34,8 +34,12 @@ export default async function BuyerDashboard() {
           <CardHeader>
             <div className="flex items-center gap-4">
               <Avatar className="h-12 w-12">
+                <AvatarImage
+                  src={profile.avatar_url ?? undefined}
+                  alt={profile.name}
+                />
                 <AvatarFallback>
-                  {profile.name.slice(0, 2).toUpperCase()}
+                  {getInitials(profile.name)}
                 </AvatarFallback>
               </Avatar>
 

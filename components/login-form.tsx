@@ -47,7 +47,6 @@ export function LoginForm({
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
-
     setLoading(true)
 
     const result = loginSchema.safeParse(data)
@@ -56,10 +55,10 @@ export function LoginForm({
       const fieldErrors: Record<string, string> = {}
 
       result.error.issues.forEach((issue) => {
-        const filed = issue.path[0]
+        const field = issue.path[0]
 
-        if (typeof filed === "string") {
-          fieldErrors[filed] = issue.message
+        if (typeof field === "string") {
+          fieldErrors[field] = issue.message
         }
       })
       setErrors(fieldErrors)
