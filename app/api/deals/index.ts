@@ -95,3 +95,17 @@ export async function addDealImage(
     return { error: new Error("something went wrong") }
   }
 }
+
+export async function deleteDealImageAPI(id: string) {
+  try {
+    const supabase = createClient()
+
+    const { error } = await supabase.from("deal_images").delete().eq("id", id)
+    return { error }
+  } catch (e) {
+    if (e instanceof Error) {
+      return { error: e }
+    }
+    return { error: new Error("something went wrong") }
+  }
+}

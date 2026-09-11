@@ -5,3 +5,7 @@ export type DealImagesInsert =
   Database["public"]["Tables"]["deal_images"]["Insert"]
 export type DealImagesUpdate =
   Database["public"]["Tables"]["deal_images"]["Update"]
+
+export type DealImageWithUrl = DealImages & {
+  signedUrl: string
+}
