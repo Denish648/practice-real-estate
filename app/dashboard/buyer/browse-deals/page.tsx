@@ -10,6 +10,7 @@ import {
 import { formatPrice } from "@/lib/utils/format"
 import { getDeals } from "@/lib/data/deals"
 import { getUser } from "@/lib/data/user"
+import Link from "next/link"
 
 export default async function BrowseDeals() {
   const { user, error: userError } = await getUser()
@@ -42,13 +43,17 @@ export default async function BrowseDeals() {
                   const { id, title, city, price, is_private } = deal
 
                   return (
-                    <TableRow key={`key-${id}`}>
-                      <TableCell>{title}</TableCell>
-
+                    <TableRow key={`key-${id}`} className="hover:bg-muted/50">
+                      <TableCell className="font-medium">
+                        <Link
+                          href={`/dashboard/buyer/deals/${id}`}
+                          className="text-primary underline-offset-4 hover:underline"
+                        >
+                          {title}
+                        </Link>
+                      </TableCell>
                       <TableCell>{city}</TableCell>
-
                       <TableCell>{formatPrice(price)}</TableCell>
-
                       <TableCell>
                         <Badge variant={is_private ? "secondary" : "default"}>
                           {is_private ? "Private" : "Public"}

@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select"
 import { formatPrice } from "@/lib/utils/format"
 import type { Deal } from "@/lib/types/deal"
+import Link from "next/link"
 
 interface MyDealsTableProps {
   deals: Deal[]
@@ -66,8 +67,15 @@ export function MyDealsTable({ deals }: MyDealsTableProps) {
                 const { id, title, city, price, is_private } = deal
 
                 return (
-                  <TableRow key={id}>
-                    <TableCell>{title}</TableCell>
+                  <TableRow key={id} className="hover:bg-muted/50">
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/dashboard/broker/deals/${id}`}
+                        className="text-primary underline-offset-4 hover:underline"
+                      >
+                        {title}
+                      </Link>
+                    </TableCell>
                     <TableCell>{city}</TableCell>
                     <TableCell>{formatPrice(price)}</TableCell>
                     <TableCell>

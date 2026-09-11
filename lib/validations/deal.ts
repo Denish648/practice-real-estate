@@ -11,4 +11,7 @@ export const createDealsSchema = z.object({
   is_private: z.coerce.boolean(),
 })
 
+export const updateDealsSchema = createDealsSchema
+
 export type CreateDealsInput = z.infer<typeof createDealsSchema>
+export type UpdateDealsInput = z.infer<typeof updateDealsSchema>
